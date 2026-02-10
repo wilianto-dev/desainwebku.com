@@ -1,5 +1,4 @@
 <?php
-// app/Models/Setting.php
 
 namespace App\Models;
 
@@ -10,11 +9,16 @@ class Setting extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['key', 'value', 'type'];
+    protected $fillable = [
+        'key',
+        'value',
+        'type',
+    ];
 
-    public $timestamps = true;
+    protected $casts = [
+        'value' => 'array',
+    ];
 
-    // Helper methods
     public static function getValue($key, $default = null)
     {
         $setting = self::where('key', $key)->first();
@@ -23,9 +27,10 @@ class Setting extends Model
 
     public static function setValue($key, $value, $type = 'text')
     {
-        return self::updateOrCreate(
+        $setting = self::updateOrCreate(
             ['key' => $key],
             ['value' => $value, 'type' => $type]
         );
+        return $setting;
     }
 }

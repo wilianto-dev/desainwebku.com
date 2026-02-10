@@ -1,5 +1,4 @@
 <?php
-// app/Models/Testimonial.php
 
 namespace App\Models;
 
@@ -12,7 +11,12 @@ class Testimonial extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'name', 'company', 'rating', 'content', 'status'
+        'user_id',
+        'name',
+        'company',
+        'rating',
+        'content',
+        'status',
     ];
 
     public function user()
@@ -20,7 +24,6 @@ class Testimonial extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Scopes
     public function scopeApproved($query)
     {
         return $query->where('status', 'approved');

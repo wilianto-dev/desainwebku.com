@@ -1,5 +1,4 @@
 <?php
-// app/Models/Order.php
 
 namespace App\Models;
 
@@ -12,8 +11,14 @@ class Order extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'service_id', 'package_id', 'order_number',
-        'status', 'total_price', 'notes', 'paid_at'
+        'user_id',
+        'service_id',
+        'package_id',
+        'order_number',
+        'status',
+        'total_price',
+        'notes',
+        'paid_at',
     ];
 
     protected $casts = [
@@ -36,7 +41,6 @@ class Order extends Model
         return $this->belongsTo(Package::class);
     }
 
-    // Scopes
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -47,8 +51,8 @@ class Order extends Model
         return $query->where('status', 'paid');
     }
 
-    public function scopeCompleted($query)
+    public function generateOrderNumber()
     {
-        return $query->where('status', 'completed');
+        return 'ORD-' . date('Ymd') . '-' . strtoupper(uniqid());
     }
 }

@@ -1,5 +1,4 @@
 <?php
-// app/Models/Package.php
 
 namespace App\Models;
 
@@ -12,8 +11,14 @@ class Package extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'name', 'slug', 'description', 'features',
-        'price', 'status', 'is_popular'
+        'user_id',
+        'name',
+        'slug',
+        'description',
+        'features',
+        'price',
+        'status',
+        'is_popular',
     ];
 
     protected $casts = [
@@ -30,5 +35,15 @@ class Package extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopePopular($query)
+    {
+        return $query->where('is_popular', true);
     }
 }

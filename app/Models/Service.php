@@ -1,5 +1,4 @@
 <?php
-// app/Models/Service.php
 
 namespace App\Models;
 
@@ -12,8 +11,15 @@ class Service extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'title', 'slug', 'description', 'features',
-        'price', 'duration', 'status', 'is_featured'
+        'user_id',
+        'title',
+        'slug',
+        'description',
+        'features',
+        'price',
+        'duration',
+        'status',
+        'is_featured',
     ];
 
     protected $casts = [
@@ -31,4 +37,44 @@ class Service extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    // Tambahkan method ini ke model Service
+protected $appends = ['parsed_features'];
+
+public function getParsedFeaturesAttribute()
+{
+    $features = $this->attributes['features'] ?? null;
+    
+    if (is_null($features)) {
+        return [];
+    }
+    
+    if (is_array($features)) {
+        return $features;
+    }
+    
+    if (is_string($features)) {
+        try {
+            $decoded = json_decode($features, true);
+            return is_array($decoded) ? $decoded : [];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+    
+    return [];
+}
+
+
+
 }

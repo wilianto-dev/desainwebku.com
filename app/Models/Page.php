@@ -1,5 +1,4 @@
 <?php
-// app/Models/Page.php
 
 namespace App\Models;
 
@@ -12,8 +11,13 @@ class Page extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'title', 'slug', 'content',
-        'status', 'seo_title', 'seo_description'
+        'user_id',
+        'title',
+        'slug',
+        'content',
+        'status',
+        'seo_title',
+        'seo_description',
     ];
 
     public function user()
@@ -21,9 +25,13 @@ class Page extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Scopes
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
     }
 }
