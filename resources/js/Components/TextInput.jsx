@@ -1,30 +1,44 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+// Components/TextInput.jsx
+import React from 'react';
 
-export default forwardRef(function TextInput(
-    { type = 'text', className = '', isFocused = false, ...props },
-    ref,
-) {
-    const localRef = useRef(null);
+export default function TextInput({
+  type = 'text',
+  className = '',
+  isFocused = false,
+  style,
+  ...props
+}) {
+  const inputRef = React.useRef();
 
-    useImperativeHandle(ref, () => ({
-        focus: () => localRef.current?.focus(),
-    }));
+  React.useEffect(() => {
+    if (isFocused) {
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
 
-    useEffect(() => {
-        if (isFocused) {
-            localRef.current?.focus();
-        }
-    }, [isFocused]);
+  return (
+    <input
+      {...props}
+      type={type}
+      className={
+        'rounded-lg border px-4 py-2.5 text-sm transition-theme focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent ' +
+        className
+      }
+      ref={inputRef}
+      style={{
+        backgroundColor: 'var(--color-bg-primary)',
+        borderColor: 'var(--color-border)',
+        color: 'var(--color-text-primary)',
+        ...style,
+      }}
+    />
+  );
+}
 
-    return (
-        <input
-            {...props}
-            type={type}
-            className={
-                'rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ' +
-                className
-            }
-            ref={localRef}
-        />
-    );
-});
+// Components/InputLabel.jsx
+
+
+// Components/Checkbox.jsx
+
+
+// Components/PrimaryButton.jsx

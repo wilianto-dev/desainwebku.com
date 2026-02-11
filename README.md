@@ -18,11 +18,9 @@
   - [How to Contribute](#how-to-contribute)
 - [License](#license)
 
-
 ## Overview
 
 The **Laravel Docker Examples Project** offers practical and modular examples for Laravel developers to create efficient Docker environments for development and production. This project demonstrates modern Docker best practices, including multi-stage builds, modular configurations, and environment-specific customization. It is designed to be educational, flexible, and extendable, providing a solid foundation for Dockerizing Laravel applications.
-
 
 ## Project Structure
 
@@ -34,20 +32,19 @@ The project is organized as a typical Laravel application, with the addition of 
 ### Directory Structure
 
 ```
-project-root/ 
+project-root/
 ├── app/ # Laravel app folder
-├── ...  # Other Laravel files and directories 
-├── docker/ 
+├── ...  # Other Laravel files and directories
+├── docker/
 │   ├── common/ # Shared configurations
-│   ├── development/ # Development-specific configurations 
+│   ├── development/ # Development-specific configurations
 │   ├── production/ # Production-specific configurations
-├── compose.dev.yaml # Docker Compose for development 
-├── compose.prod.yaml # Docker Compose for production 
+├── compose.dev.yaml # Docker Compose for development
+├── compose.prod.yaml # Docker Compose for production
 └── .env.example # Example environment configuration
 ```
 
 This modular structure ensures shared logic between environments while allowing environment-specific customizations.
-
 
 ### Production Environment
 
@@ -61,12 +58,12 @@ The production environment is configured using the `compose.prod.yaml` file. It 
 
 This environment is designed for easy deployment to any Docker-compatible hosting platform.
 
-
 ### Development Environment
 
 The development environment is configured using the `compose.dev.yaml` file and is built on top of the production version. This ensures the development environment is as close to production as possible while still supporting tools like Xdebug and writable permissions.
 
 Key features include:
+
 - **Close Parity with Production**: Mirrors the production environment to minimize deployment issues.
 - **Development Tools**: Includes Xdebug for debugging and writable permissions for mounted volumes.
 - **Hot Reloading**: Volume mounts enable real-time updates to the codebase without rebuilding containers.
@@ -75,12 +72,12 @@ Key features include:
 
 To set up the development environment, follow the steps in the **Getting Started** section.
 
-
 ## Getting Started
 
 Follow these steps to set up and run the Laravel Docker Examples Project:
 
 ### Prerequisites
+
 Ensure you have Docker and Docker Compose installed. You can verify by running:
 
 ```bash
@@ -184,7 +181,6 @@ The production environment is designed with security and efficiency in mind:
 - **Health Checks**: Implemented to monitor the status of services and ensure they are functioning correctly.
 - **HTTPS Setup**: While not included in this example, it's recommended to configure SSL certificates and use HTTPS in a production environment.
 
-
 ### Deploying
 
 The production image can be deployed to any Docker-compatible hosting environment, such as AWS ECS, Kubernetes, or a traditional VPS.
@@ -198,7 +194,6 @@ The production image can be deployed to any Docker-compatible hosting environmen
 - **Nginx**: Used as the web server to serve the Laravel application and handle HTTP requests.
 - **Docker Compose**: Orchestrates the services, simplifying the process of starting and stopping the environment.
 - **Health Checks**: Implemented in the Docker Compose configurations and Laravel application to ensure all services are operational.
-
 
 ## Contributing
 
@@ -225,7 +220,7 @@ Contributions are welcome! Whether you find a bug, have an idea for improvement,
 
 4. Make Your Changes.
 
-    Implement your changes or additions.
+   Implement your changes or additions.
 
 5. Commit Your Changes:
 
@@ -240,9 +235,9 @@ git commit -m "Description of changes"
 ```
 
 7. Submit a Pull Request:
-    - Go to the original repository.
-    - Click on "Pull Requests" and then "New Pull Request."
-    - Select your fork and branch, and submit your pull request.
+   - Go to the original repository.
+   - Click on "Pull Requests" and then "New Pull Request."
+   - Select your fork and branch, and submit your pull request.
 
 ## License
 
