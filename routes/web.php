@@ -6,6 +6,14 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PackageController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\PortfolioController;
+use App\Http\Controllers\Admin\TestimonialController;
 
 Route::get('/', [\App\Http\Controllers\PublicController::class, 'home'])->name('home');
 Route::get('/layanan', [\App\Http\Controllers\PublicController::class, 'services'])->name('services');
