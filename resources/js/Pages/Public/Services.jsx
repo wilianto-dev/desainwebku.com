@@ -755,7 +755,7 @@ export default function Services({ services, packages }) {
                                   {theme === 'dark-corporate' && 'ANALYZE'}
                                 </Link>
                                 <Link
-                                  href={`/pesanan/${service.id}`}
+                                  href={route('order.service', service.id)}
                                   className="btn-primary px-4 py-2 text-sm"
                                 >
                                   {theme === 'cyber' && 'ORDER'}
@@ -916,7 +916,7 @@ export default function Services({ services, packages }) {
                                   {theme === 'dark-corporate' && 'SPECIFICATIONS'}
                                 </Link>
                                 <Link
-                                  href={`/pesanan/${service.id}`}
+                                 href={route('order.service', service.id)}
                                   className="btn-primary px-6 py-2.5 text-sm text-center"
                                 >
                                   {theme === 'cyber' && 'INITIATE ORDER'}

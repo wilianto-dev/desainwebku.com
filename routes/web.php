@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ProfileController;
 
@@ -13,7 +14,16 @@ Route::get('/portofolio', [\App\Http\Controllers\PublicController::class, 'portf
 Route::get('/portofolio/{portfolio:slug}', [\App\Http\Controllers\PublicController::class, 'portfolioDetail'])->name('portfolio.detail');
 Route::get('/kontak', [\App\Http\Controllers\PublicController::class, 'contact'])->name('contact');
 Route::post('/kontak', [\App\Http\Controllers\PublicController::class, 'contactSubmit'])->name('contact.submit');
+
+// Order routes
+Route::get('/pesanan/service/{service}', [OrderController::class, 'createFromService'])->name('order.service');
+Route::get('/pesanan/package/{package}', [OrderController::class, 'createFromPackage'])->name('order.package');
+Route::post('/pesanan', [OrderController::class, 'store'])->name('order.store');
+Route::get('/pesanan/{orderNumber}', [OrderController::class, 'show'])->name('order.show');
+
 Route::get('/halaman/{page:slug}', [\App\Http\Controllers\PublicController::class, 'page'])->name('page');
+
+
 
 /*
 |--------------------------------------------------------------------------
