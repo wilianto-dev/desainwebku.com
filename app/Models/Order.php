@@ -12,28 +12,26 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'service_id',
         'package_id',
         'order_number',
         'status',
         'total_price',
         'notes',
         'paid_at',
+        'started_at',
+        'completed_at',
     ];
 
     protected $casts = [
         'total_price' => 'decimal:2',
         'paid_at' => 'datetime',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function service()
-    {
-        return $this->belongsTo(Service::class);
     }
 
     public function package()
@@ -51,7 +49,17 @@ class Order extends Model
         return $query->where('status', 'paid');
     }
 
-    public function generateOrderNumber()
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', 'in_progress');
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    public static function generateOrderNumber()
     {
         return 'ORD-' . date('Ymd') . '-' . strtoupper(uniqid());
     }

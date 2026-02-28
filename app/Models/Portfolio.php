@@ -11,22 +11,29 @@ class Portfolio extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
+        'service_id',
         'title',
         'slug',
         'description',
-        'category',
         'image',
+        'technologies',
+        'results',
         'status',
+        'completion_date',
         'published_at',
     ];
 
     protected $casts = [
-          'technologies' => 'array',
-    'results' => 'array',
-    'published_at' => 'datetime',
-    'completion_date' => 'date',
+        'technologies' => 'array',
+        'results' => 'array',
+        'completion_date' => 'date',
+        'published_at' => 'datetime',
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 
     public function user()
     {
@@ -37,10 +44,5 @@ class Portfolio extends Model
     {
         return $query->where('status', 'published')
                     ->whereNotNull('published_at');
-    }
-
-    public function scopeByCategory($query, $category)
-    {
-        return $query->where('category', $category);
     }
 }

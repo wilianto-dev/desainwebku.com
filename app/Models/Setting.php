@@ -22,15 +22,43 @@ class Setting extends Model
     public static function getValue($key, $default = null)
     {
         $setting = self::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        
+        if (!$setting) {
+            return $default;
+        }
+
+        $value = $setting->value;
+        
+        // Cast berdasarkan tipe
+        switch ($setting->type) {
+            case 'boolean':
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            case 'number':
+                return is_numeric($value) ? (float) $value : $default;
+            case 'json':
+                return is_array($value) ? $value : json_decode($value, true);
+            default:
+                return $value;
+        }
     }
 
     public static function setValue($key, $value, $type = 'text')
     {
+        // Untuk tipe boolean, konversi ke string 'true'/'false'
+        if ($type === 'boolean') {
+            $value = $value ? 'true' : 'false';
+        }
+        
+        // Untuk tipe json, encode jika array
+        if ($type === 'json' && is_array($value)) {
+            $value = json_encode($value);
+        }
+
         $setting = self::updateOrCreate(
             ['key' => $key],
             ['value' => $value, 'type' => $type]
         );
+        
         return $setting;
     }
 }

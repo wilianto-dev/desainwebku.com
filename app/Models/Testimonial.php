@@ -11,7 +11,7 @@ class Testimonial extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
+        'service_id',
         'name',
         'company',
         'rating',
@@ -19,9 +19,13 @@ class Testimonial extends Model
         'status',
     ];
 
-    public function user()
+    protected $casts = [
+        'rating' => 'integer',
+    ];
+
+    public function service()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Service::class);
     }
 
     public function scopeApproved($query)

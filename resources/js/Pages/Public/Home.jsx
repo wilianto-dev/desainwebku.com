@@ -36,7 +36,7 @@ import {
   VariableIcon,
   StarIcon,
 } from '@heroicons/react/24/outline';
-import { SiLaravel, SiReact, SiTailwindcss, SiInertia } from 'react-icons/si';
+import { SiLaravel, SiReact, SiTailwindcss, SiInertia, SiVuedotjs, SiMysql, SiPostgresql, SiDocker, SiAmazonwebservices } from 'react-icons/si';
 
 export default function Home({ services, packages, portfolios, testimonials, siteSettings }) {
   const [terminalText, setTerminalText] = useState('');
@@ -83,30 +83,54 @@ export default function Home({ services, packages, portfolios, testimonials, sit
     }
   }, [terminalIndex, theme]);
 
-  // Helper function to parse features
+  // Helper function to parse features (already array from model casting)
   const parseFeatures = (features) => {
     if (!features) return [];
-    try {
-      if (Array.isArray(features)) return features;
-      if (typeof features === 'string') {
-        const parsed = JSON.parse(features);
-        return Array.isArray(parsed) ? parsed : [];
-      }
-      return [];
-    } catch (error) {
-      console.error('Error parsing features:', error);
-      return [];
-    }
+    return Array.isArray(features) ? features : [];
+  };
+
+  // Helper function to parse technologies (already array from model casting)
+  const parseTechnologies = (technologies) => {
+    if (!technologies) return [];
+    return Array.isArray(technologies) ? technologies : [];
+  };
+
+  // Helper function to parse results (already array from model casting)
+  const parseResults = (results) => {
+    if (!results) return [];
+    return Array.isArray(results) ? results : [];
   };
 
   // Format price in IDR
   const formatPrice = (price) => {
+    if (!price) return 'Rp 0';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  // Get icon component based on service icon class
+  const getServiceIcon = (iconClass) => {
+    const iconMap = {
+      'fas fa-code': CodeBracketIcon,
+      'fas fa-mobile-alt': DevicePhoneMobileIcon,
+      'fas fa-paint-brush': SparklesIcon,
+      'fas fa-chart-line': ChartBarSquareIcon,
+      'fas fa-cloud': ServerIcon,
+      'fas fa-users-cog': UsersIcon,
+      'fas fa-database': CpuChipIcon,
+      'fas fa-shield-alt': ShieldCheckIcon,
+      'fas fa-rocket': RocketLaunchIcon,
+      'fas fa-cogs': WrenchScrewdriverIcon,
+      'fas fa-building': BriefcaseIcon,
+      'fas fa-shopping-cart': CurrencyDollarIcon,
+      'fas fa-laptop-code': CodeBracketIcon,
+      'fas fa-tools': WrenchScrewdriverIcon,
+    };
+    return iconMap[iconClass] || CodeBracketIcon;
   };
 
   // Theme-specific hero content
@@ -140,13 +164,22 @@ export default function Home({ services, packages, portfolios, testimonials, sit
           badgeIcon: ShieldCheckIcon,
           title: ['Build Digital', 'Dominance'],
           description:
-            'Enterprise-ready web solutions for forward-thinking organizations. corporate-level service, tactical execution, measurable ROI.',
+            'Enterprise-ready web solutions for forward-thinking organizations. Corporate-level service, tactical execution, measurable ROI.',
           cta1: 'Deploy Strategy',
-          cta2: 'corporate Briefing',
+          cta2: 'Corporate Briefing',
           cta2Icon: BriefcaseIcon,
         };
       default:
-        return {};
+        return {
+          badge: 'PROFESSIONAL FREELANCER',
+          badgeIcon: BoltIcon,
+          title: ['Website Profesional', 'Tanpa Ribet Birokrasi'],
+          description:
+            'Saya memberikan kualitas perusahaan dengan harga personal dan komunikasi langsung. Tidak ada tim, hanya saya dan Anda.',
+          cta1: 'Lihat Layanan',
+          cta2: 'Konsultasi Gratis',
+          cta2Icon: ChatBubbleLeftRightIcon,
+        };
     }
   };
 
@@ -158,11 +191,27 @@ export default function Home({ services, packages, portfolios, testimonials, sit
     { icon: SiTailwindcss, color: '#38BDF8' },
   ];
 
+  // Calculate stats from actual data
+  const totalProjects = portfolios?.length || 0;
+  const totalClients = portfolios?.reduce((acc, p) => {
+    return p.service ? acc.add(p.service.id) : acc;
+  }, new Set()).size || 0;
+  const avgRating = testimonials?.reduce((acc, t) => acc + (t.rating || 0), 0) / (testimonials?.filter(t => t.rating).length || 1);
+  const approvedTestimonials = testimonials?.filter(t => t.status === 'approved').length || 0;
+
   const BadgeIcon = hero.badgeIcon;
   const Cta2Icon = hero.cta2Icon;
 
+  // Debug untuk melihat data (hapus setelah production)
+  console.log('Services:', services);
+  console.log('Packages:', packages);
+  console.log('Portfolios:', portfolios);
+  console.log('Testimonials:', testimonials);
+
   return (
-    <AppLayout title="Desainwebku - Jasa Pembuatan Website Profesional">
+    <AppLayout title={siteSettings?.site_name || "Desainwebku - Jasa Pembuatan Website Profesional"}>
+      <Head title={siteSettings?.site_name || "Desainwebku"} />
+      
       {/* Hero Section - Theme Specific */}
       <section className="relative min-h-[90vh] flex items-center section-lg overflow-hidden transition-theme">
         {/* Theme-specific hero backgrounds */}
@@ -248,39 +297,38 @@ export default function Home({ services, packages, portfolios, testimonials, sit
               </div>
 
               {/* Trust badges */}
-             <div className="flex items-center space-x-6 pt-4">
-  <div className="flex -space-x-3">
-    {techStack.map((item, i) => {
-      const Icon = item.icon;
-      return (
-        <div
-          key={i}
-          className="w-14 h-14 rounded-full border-2 flex items-center justify-center shadow-lg"
-          style={{
-            borderColor: 'var(--color-bg-primary)',
-            background: 'var(--gradient-primary)',
-          }}
-        >
-          <Icon
-            className="w-7 h-7"
-            style={{
-              color: item.color,
-              filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.8))',
-            }}
-          />
-        </div>
-      );
-    })}
-  </div>
+              <div className="flex items-center space-x-6 pt-4">
+                <div className="flex -space-x-3">
+                  {techStack.map((item, i) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={i}
+                        className="w-14 h-14 rounded-full border-2 flex items-center justify-center shadow-lg"
+                        style={{
+                          borderColor: 'var(--color-bg-primary)',
+                          background: 'var(--gradient-primary)',
+                        }}
+                      >
+                        <Icon
+                          className="w-7 h-7"
+                          style={{
+                            color: item.color,
+                            filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.8))',
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
 
-  <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-    <span className="font-bold" style={{ color: 'var(--color-primary)' }}>
-      50+
-    </span>{' '}
-    klien puas
-  </span>
-</div>
-
+                <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                  <span className="font-bold" style={{ color: 'var(--color-primary)' }}>
+                    {totalClients}+
+                  </span>{' '}
+                  klien puas
+                </span>
+              </div>
             </div>
 
             {/* Right column - Theme specific */}
@@ -316,39 +364,20 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                 </div>
               )}
 
-              {theme === 'startup' && (
+              {theme === 'startup' && services && services.length > 0 && (
                 <div className="grid grid-cols-2 gap-6 items-stretch">
-                  <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                      <RocketLaunchIcon className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Fast Delivery</h3>
-                    <p className="text-sm text-gray-600 flex-1">Launch in weeks, not months</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-                    <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center mb-4">
-                      <ShieldCheckIcon className="h-6 w-6 text-cyan-600" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Enterprise Security</h3>
-                    <p className="text-sm text-gray-600 flex-1">Bank-grade protection</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                      <ChartBarSquareIcon className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">SEO Optimized</h3>
-                    <p className="text-sm text-gray-600 flex-1">Rank #1 on Google</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                      <DevicePhoneMobileIcon className="h-6 w-6 text-green-600" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Mobile First</h3>
-                    <p className="text-sm text-gray-600 flex-1">Perfect on all devices</p>
-                  </div>
+                  {services.filter(s => s.is_featured).slice(0, 4).map((service, index) => {
+                    const IconComponent = getServiceIcon(service.icon);
+                    return (
+                      <div key={service.id} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                          <IconComponent className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{service.title}</h3>
+                        <p className="text-sm text-gray-600 flex-1">{service.short_description || service.title}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -434,13 +463,13 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                             className="text-sm font-bold"
                             style={{ color: 'var(--color-primary)' }}
                           >
-                            4.9/5.0
+                            {avgRating ? avgRating.toFixed(1) : '0'}/5.0
                           </span>
                         </div>
                         <div className="w-full h-1.5 bg-[var(--color-border)] rounded-full overflow-hidden">
                           <div
                             className="h-full w-full"
-                            style={{ background: 'var(--gradient-primary)', width: '98%' }}
+                            style={{ background: 'var(--gradient-primary)', width: avgRating ? `${(avgRating / 5) * 100}%` : '0%' }}
                           ></div>
                         </div>
                       </div>
@@ -449,7 +478,7 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-5 text-center transition-theme hover:border-[var(--color-primary)]">
                       <p className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>
-                        50+
+                        {totalProjects}+
                       </p>
                       <p
                         className="text-xs uppercase tracking-wider mt-1"
@@ -483,14 +512,14 @@ export default function Home({ services, packages, portfolios, testimonials, sit
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {theme === 'cyber' &&
               [
-                { value: '50+', label: 'Proyek Selesai', icon: ServerIcon, status: 'ACTIVE' },
+                { value: totalProjects + '+', label: 'Proyek Selesai', icon: ServerIcon, status: 'ACTIVE' },
                 {
-                  value: '100%',
+                  value: avgRating ? avgRating.toFixed(1) + '/5' : '0/5',
                   label: 'Kepuasan Klien',
                   icon: ShieldCheckIcon,
                   status: 'VERIFIED',
                 },
-                { value: '40+', label: 'Klien Puas', icon: TrophyIcon, status: 'ONLINE' },
+                { value: approvedTestimonials + '+', label: 'Testimoni', icon: TrophyIcon, status: 'ONLINE' },
                 { value: '24/7', label: 'Support', icon: ClockIcon, status: 'READY' },
               ].map((stat, index) => (
                 <div
@@ -521,9 +550,9 @@ export default function Home({ services, packages, portfolios, testimonials, sit
 
             {theme === 'startup' &&
               [
-                { value: '50+', label: 'Projects Completed' },
-                { value: '40+', label: 'Happy Clients' },
-                { value: '100%', label: 'Client Satisfaction' },
+                { value: totalProjects + '+', label: 'Projects Completed' },
+                { value: totalClients + '+', label: 'Happy Clients' },
+                { value: avgRating ? avgRating.toFixed(1) + '/5' : '0/5', label: 'Client Satisfaction' },
                 { value: '24/7', label: 'Support Available' },
               ].map((stat, index) => (
                 <div
@@ -539,9 +568,9 @@ export default function Home({ services, packages, portfolios, testimonials, sit
 
             {theme === 'dark-corporate' &&
               [
-                { value: '50+', label: 'ENTERPRISE DEPLOYMENTS', metric: 'Production Ready' },
+                { value: totalProjects + '+', label: 'ENTERPRISE DEPLOYMENTS', metric: 'Production Ready' },
                 { value: '100%', label: 'SUCCESS RATE', metric: 'Mission Critical' },
-                { value: '24/7', label: 'STRATEGIC SUPPORT', metric: 'corporate Level' },
+                { value: '24/7', label: 'STRATEGIC SUPPORT', metric: 'Corporate Level' },
                 { value: '5+', label: 'YEARS EXPERIENCE', metric: 'Enterprise Grade' },
               ].map((stat, index) => (
                 <div
@@ -569,401 +598,313 @@ export default function Home({ services, packages, portfolios, testimonials, sit
         </div>
       </section>
 
-      {/* Keunggulan Section - Theme Specific */}
-      <section className="section">
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-            >
-              {theme === 'cyber' && <BoltIcon className="h-5 w-5 mr-2" />}
-              {theme === 'startup' && <SparklesIcon className="h-5 w-5 mr-2" />}
-              {theme === 'dark-corporate' && <KeyIcon className="h-5 w-5 mr-2" />}
-              <span
-                className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+      {/* Services Section */}
+      {services && services.length > 0 && (
+        <section className="section">
+          <div className="container-custom">
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
+                style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
               >
-                {theme === 'cyber' && 'SYSTEM STATUS: ACTIVE'}
-                {theme === 'startup' && 'WHY CHOOSE US'}
-                {theme === 'dark-corporate' && 'STRATEGIC ADVANTAGES'}
-              </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              {theme === 'cyber' && 'Kenapa Pilih '}
-              {theme === 'startup' && 'Why Leading Companies '}
-              {theme === 'dark-corporate' && 'Digital '}
-              <span className="text-gradient">
-                {theme === 'cyber' && 'Developer Independen?'}
-                {theme === 'startup' && 'Trust Our Expertise'}
-                {theme === 'dark-corporate' && 'Superiority'}
-              </span>
-            </h2>
-          </div>
-
-          {theme === 'cyber' && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  icon: ShieldCheckIcon,
-                  title: 'Komunikasi Langsung',
-                  desc: 'Tidak ada account manager. Langsung dengan developer.',
-                  status: 'ACTIVE',
-                },
-                {
-                  icon: BoltIcon,
-                  title: 'Harga Kompetitif',
-                  desc: 'Tanpa biaya overhead tim besar. Kualitas tetap premium.',
-                  status: 'RUNNING',
-                },
-                {
-                  icon: RocketLaunchIcon,
-                  title: 'Proses Lebih Cepat',
-                  desc: 'Tidak ada birokrasi internal. Eksekusi langsung.',
-                  status: 'OPTIMIZED',
-                },
-                {
-                  icon: SparklesIcon,
-                  title: 'Perhatian Penuh',
-                  desc: 'Satu proyek, satu fokus. Dedikasi 100%.',
-                  status: 'ENGAGED',
-                },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="group relative bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 transition-all duration-300 hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-glow)]"
+                <Squares2X2Icon className="h-5 w-5 mr-2" />
+                <span
+                  className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <item.icon className="h-8 w-8" style={{ color: 'var(--color-primary)' }} />
-                    <span
-                      className="text-xs font-mono px-2 py-1 rounded border"
-                      style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
-                  <h3
-                    className="text-lg font-mono font-bold mb-2"
-                    style={{ color: 'var(--color-primary)' }}
-                  >
-                    {item.title}
-                  </h3>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
-                    {item.desc}
-                  </p>
-                  <div
-                    className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300"
-                    style={{ background: 'var(--gradient-primary)' }}
-                  ></div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {theme === 'startup' && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 ">
-              {[
-                {
-                  icon: RocketLaunchIcon,
-                  title: 'Fast Time-to-Market',
-                  desc: 'Launch your product in weeks, not months with agile development.',
-                },
-                {
-                  icon: ShieldCheckIcon,
-                  title: 'Enterprise Security',
-                  desc: 'Bank-grade encryption and security best practices implemented.',
-                },
-                {
-                  icon: ChartBarSquareIcon,
-                  title: 'Scalable Architecture',
-                  desc: 'Built to grow with your business from startup to enterprise.',
-                },
-                {
-                  icon: DevicePhoneMobileIcon,
-                  title: 'Mobile-First Design',
-                  desc: 'Flawless experience across all devices and screen sizes.',
-                },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="group bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <item.icon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {theme === 'dark-corporate' && (
-            <div className="max-w-4xl mx-auto">
-              <div className="space-y-4">
-                {[
-                  {
-                    number: '01',
-                    title: 'corporate SERVICE LEVEL',
-                    desc: 'Direct communication with lead architect. No account managers, no delays.',
-                    metric: 'PREMIUM',
-                  },
-                  {
-                    number: '02',
-                    title: 'STRATEGIC TECHNOLOGY',
-                    desc: 'Enterprise-grade solutions tailored to your business objectives.',
-                    metric: 'ADVANCED',
-                  },
-                  {
-                    number: '03',
-                    title: 'RISK MITIGATION',
-                    desc: 'Comprehensive security protocols and compliance standards.',
-                    metric: 'CERTIFIED',
-                  },
-                  {
-                    number: '04',
-                    title: 'ROI FOCUSED',
-                    desc: 'Measurable results and clear business impact from day one.',
-                    metric: 'VERIFIED',
-                  },
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    className="group relative bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 transition-all duration-300 hover:border-[var(--color-primary)] hover:shadow-lg"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <span
-                            className="text-4xl font-bold opacity-20 mr-4"
-                            style={{ color: 'var(--color-primary)' }}
-                          >
-                            {item.number}
-                          </span>
-                          <h3
-                            className="text-lg font-bold uppercase tracking-wider"
-                            style={{ color: 'var(--color-text-primary)' }}
-                          >
-                            {item.title}
-                          </h3>
-                        </div>
-                        <p
-                          className="text-sm ml-14 leading-relaxed"
-                          style={{ color: 'var(--color-text-muted)' }}
-                        >
-                          {item.desc}
-                        </p>
-                      </div>
-                      <span
-                        className="text-xs uppercase px-3 py-1 border"
-                        style={{ borderColor: 'var(--color-border)', color: 'var(--color-accent)' }}
-                      >
-                        {item.metric}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  {theme === 'cyber' && 'AVAILABLE SERVICES'}
+                  {theme === 'startup' && 'WHAT WE OFFER'}
+                  {theme === 'dark-corporate' && 'SERVICE CATALOG'}
+                </span>
               </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                {theme === 'cyber' && 'Layanan '}
+                {theme === 'startup' && 'Our '}
+                {theme === 'dark-corporate' && 'Corporate '}
+                <span className="text-gradient">
+                  {theme === 'cyber' && 'Profesional'}
+                  {theme === 'startup' && 'Expertise'}
+                  {theme === 'dark-corporate' && 'Solutions'}
+                </span>
+              </h2>
             </div>
-          )}
-        </div>
-      </section>
 
-      {/* Portfolio Section - Theme Specific */}
-      <section className="section bg-[var(--color-bg-secondary)]">
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-            >
-              {theme === 'cyber' && <CodeBracketIcon className="h-5 w-5 mr-2" />}
-              {theme === 'startup' && <BriefcaseIcon className="h-5 w-5 mr-2" />}
-              {theme === 'dark-corporate' && <DocumentTextIcon className="h-5 w-5 mr-2" />}
-              <span
-                className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
-              >
-                {theme === 'cyber' && 'DATABASE: PROYEK'}
-                {theme === 'startup' && 'SUCCESS STORIES'}
-                {theme === 'dark-corporate' && 'CASE STUDIES'}
-              </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              {theme === 'cyber' && 'Proyek '}
-              {theme === 'startup' && 'Featured '}
-              {theme === 'dark-corporate' && 'Strategic '}
-              <span className="text-gradient">
-                {theme === 'cyber' && 'Unggulan'}
-                {theme === 'startup' && 'Work'}
-                {theme === 'dark-corporate' && 'Deployments'}
-              </span>
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {portfolios &&
-              portfolios.slice(0, 6).map((portfolio, index) => (
-                <div
-                  key={portfolio.id}
-                  className={`group relative overflow-hidden transition-all duration-500 ${
-                    theme === 'cyber'
-                      ? 'card-cyber'
-                      : theme === 'startup'
-                        ? 'card-startup'
-                        : 'card-corporate'
-                  }`}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="relative h-56 md:h-64 overflow-hidden">
-                    <img
-                      src={
-                        portfolio.image ||
-                        'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                      }
-                      alt={portfolio.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div
-                      className={`absolute inset-0 transition-opacity duration-300 ${
-                        theme === 'cyber'
-                          ? 'bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100'
-                          : theme === 'startup'
-                            ? 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
-                            : 'bg-gradient-to-t from-[var(--color-bg-primary)]/90 via-[var(--color-bg-primary)]/50 to-transparent opacity-0 group-hover:opacity-100'
-                      }`}
-                    ></div>
-
-                    {theme === 'cyber' && (
-                      <div className="absolute top-4 right-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service, index) => {
+                const IconComponent = getServiceIcon(service.icon);
+                return (
+                  <div
+                    key={service.id}
+                    className={`group relative transition-all duration-500 ${
+                      theme === 'cyber'
+                        ? 'card-cyber p-6'
+                        : theme === 'startup'
+                          ? 'bg-white rounded-xl p-6 shadow-md hover:shadow-xl'
+                          : 'bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6'
+                    }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <IconComponent
+                        className="h-10 w-10"
+                        style={{ color: 'var(--color-primary)' }}
+                      />
+                      {service.is_featured && (
                         <span
-                          className="px-3 py-1 text-xs font-mono rounded-full border"
-                          style={{
-                            borderColor: 'var(--color-primary)',
-                            color: 'var(--color-primary)',
-                            backgroundColor: 'rgba(0,255,65,0.1)',
-                          }}
+                          className={`text-xs px-2 py-1 rounded ${
+                            theme === 'cyber'
+                              ? 'border border-[var(--color-primary)]'
+                              : theme === 'startup'
+                                ? 'bg-blue-100 text-blue-600'
+                                : 'border border-[var(--color-primary)]'
+                          }`}
+                          style={{ color: 'var(--color-primary)' }}
                         >
-                          {portfolio.tech || 'REACT'}
+                          {theme === 'cyber' ? 'FEATURED' : 'Popular'}
                         </span>
-                      </div>
-                    )}
-
-                    {theme === 'dark-corporate' && (
-                      <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                        <span
-                          className="text-xs uppercase tracking-wider px-3 py-1"
-                          style={{
-                            borderLeft: `3px solid var(--color-primary)`,
-                            color: 'var(--color-text-primary)',
-                            backgroundColor: 'rgba(17,24,39,0.9)',
-                          }}
-                        >
-                          VIEW CASE STUDY
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-5 md:p-6">
+                      )}
+                    </div>
                     <h3
-                      className={`font-bold mb-2 ${
-                        theme === 'cyber'
-                          ? 'font-mono text-lg'
-                          : theme === 'dark-corporate'
-                            ? 'uppercase tracking-wider text-base'
-                            : 'text-xl'
+                      className={`text-lg font-bold mb-3 ${
+                        theme === 'cyber' ? 'font-mono' : ''
                       }`}
                       style={{ color: 'var(--color-text-primary)' }}
                     >
-                      {portfolio.title}
+                      {service.title}
                     </h3>
                     <p
-                      className="text-sm mb-4 line-clamp-2 leading-relaxed"
+                      className="text-sm leading-relaxed mb-4"
                       style={{ color: 'var(--color-text-muted)' }}
                     >
-                      {portfolio.description}
+                      {service.short_description || service.description?.substring(0, 120) + '...'}
                     </p>
+                    <Link
+                      href={`/layanan/${service.slug}`}
+                      className="inline-flex items-center text-sm font-medium"
+                      style={{ color: 'var(--color-primary)' }}
+                    >
+                      {theme === 'cyber' && '$ VIEW_PACKAGES'}
+                      {theme === 'startup' && 'View Packages'}
+                      {theme === 'dark-corporate' && 'VIEW SOLUTIONS'}
+                      <ArrowRightIcon className="ml-1 h-4 w-4" />
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
-                    {theme === 'startup' && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          {portfolio.tech || 'React.js'}
-                        </span>
+      {/* Portfolio Section */}
+      {portfolios && portfolios.length > 0 && (
+        <section className="section bg-[var(--color-bg-secondary)]">
+          <div className="container-custom">
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
+                style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
+              >
+                {theme === 'cyber' && <CodeBracketIcon className="h-5 w-5 mr-2" />}
+                {theme === 'startup' && <BriefcaseIcon className="h-5 w-5 mr-2" />}
+                {theme === 'dark-corporate' && <DocumentTextIcon className="h-5 w-5 mr-2" />}
+                <span
+                  className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+                >
+                  {theme === 'cyber' && 'DATABASE: PROYEK'}
+                  {theme === 'startup' && 'SUCCESS STORIES'}
+                  {theme === 'dark-corporate' && 'CASE STUDIES'}
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                {theme === 'cyber' && 'Proyek '}
+                {theme === 'startup' && 'Featured '}
+                {theme === 'dark-corporate' && 'Strategic '}
+                <span className="text-gradient">
+                  {theme === 'cyber' && 'Unggulan'}
+                  {theme === 'startup' && 'Work'}
+                  {theme === 'dark-corporate' && 'Deployments'}
+                </span>
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {portfolios.slice(0, 6).map((portfolio, index) => {
+                const technologies = parseTechnologies(portfolio.technologies);
+                const results = parseResults(portfolio.results);
+
+                return (
+                  <div
+                    key={portfolio.id}
+                    className={`group relative overflow-hidden transition-all duration-500 ${
+                      theme === 'cyber'
+                        ? 'card-cyber'
+                        : theme === 'startup'
+                          ? 'card-startup'
+                          : 'card-corporate'
+                    }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="relative h-56 md:h-64 overflow-hidden">
+                      <img
+                        src={
+                          portfolio.image ||
+                          'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                        }
+                        alt={portfolio.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div
+                        className={`absolute inset-0 transition-opacity duration-300 ${
+                          theme === 'cyber'
+                            ? 'bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100'
+                            : theme === 'startup'
+                              ? 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                              : 'bg-gradient-to-t from-[var(--color-bg-primary)]/90 via-[var(--color-bg-primary)]/50 to-transparent opacity-0 group-hover:opacity-100'
+                        }`}
+                      ></div>
+
+                      {theme === 'cyber' && technologies.length > 0 && (
+                        <div className="absolute top-4 right-4">
+                          <span
+                            className="px-3 py-1 text-xs font-mono rounded-full border"
+                            style={{
+                              borderColor: 'var(--color-primary)',
+                              color: 'var(--color-primary)',
+                              backgroundColor: 'rgba(0,255,65,0.1)',
+                            }}
+                          >
+                            {technologies[0]}
+                          </span>
+                        </div>
+                      )}
+
+                      {theme === 'dark-corporate' && (
+                        <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                          <span
+                            className="text-xs uppercase tracking-wider px-3 py-1"
+                            style={{
+                              borderLeft: `3px solid var(--color-primary)`,
+                              color: 'var(--color-text-primary)',
+                              backgroundColor: 'rgba(17,24,39,0.9)',
+                            }}
+                          >
+                            VIEW CASE STUDY
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-5 md:p-6">
+                      <h3
+                        className={`font-bold mb-2 ${
+                          theme === 'cyber'
+                            ? 'font-mono text-lg'
+                            : theme === 'dark-corporate'
+                              ? 'uppercase tracking-wider text-base'
+                              : 'text-xl'
+                        }`}
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {portfolio.title}
+                      </h3>
+                      <p
+                        className="text-sm mb-4 line-clamp-2 leading-relaxed"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        {portfolio.description}
+                      </p>
+
+                      {theme === 'startup' && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500">
+                            {technologies[0] || 'React.js'}
+                          </span>
+                          <Link
+                            href={`/portofolio/${portfolio.slug}`}
+                            className="inline-flex items-center text-sm font-medium hover:text-[var(--color-primary-dark)]"
+                            style={{ color: 'var(--color-primary)' }}
+                          >
+                            View Project
+                            <ArrowRightIcon className="ml-1 h-4 w-4" />
+                          </Link>
+                        </div>
+                      )}
+
+                      {theme === 'cyber' && (
                         <Link
                           href={`/portofolio/${portfolio.slug}`}
-                          className="inline-flex items-center text-sm font-medium hover:text-[var(--color-primary-dark)]"
+                          className="inline-flex items-center text-sm font-mono hover:text-[var(--color-primary-light)]"
                           style={{ color: 'var(--color-primary)' }}
                         >
-                          View Project
-                          <ArrowRightIcon className="ml-1 h-4 w-4" />
+                          $ ACCESS_PROJECT
+                          <ArrowRightIcon className="ml-2 h-4 w-4" />
                         </Link>
-                      </div>
-                    )}
+                      )}
 
-                    {theme === 'cyber' && (
-                      <Link
-                        href={`/portofolio/${portfolio.slug}`}
-                        className="inline-flex items-center text-sm font-mono hover:text-[var(--color-primary-light)]"
-                        style={{ color: 'var(--color-primary)' }}
-                      >
-                        $ ACCESS_PROJECT
-                        <ArrowRightIcon className="ml-2 h-4 w-4" />
-                      </Link>
-                    )}
+                      {theme === 'dark-corporate' && results.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                            KEY RESULTS:
+                          </p>
+                          <p className="text-xs" style={{ color: 'var(--color-primary)' }}>
+                            {results[0]}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/portofolio" className="btn-secondary">
-              <span className="flex items-center">
-                {theme === 'cyber' && '$ VIEW_ALL_PROJECTS'}
-                {theme === 'startup' && 'View All Projects'}
-                {theme === 'dark-corporate' && 'VIEW ALL DEPLOYMENTS'}
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section - Theme Specific */}
-      <section className="section">
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-            >
-              {theme === 'cyber' && <CurrencyDollarIcon className="h-5 w-5 mr-2" />}
-              {theme === 'startup' && <PresentationChartLineIcon className="h-5 w-5 mr-2" />}
-              {theme === 'dark-corporate' && <VariableIcon className="h-5 w-5 mr-2" />}
-              <span
-                className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
-              >
-                {theme === 'cyber' && 'CONFIGURATION: PAKET'}
-                {theme === 'startup' && 'INVESTMENT PLANS'}
-                {theme === 'dark-corporate' && 'STRATEGIC PACKAGES'}
-              </span>
+                );
+              })}
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              {theme === 'cyber' && 'Investasi '}
-              {theme === 'startup' && 'Transparent '}
-              {theme === 'dark-corporate' && 'corporate '}
-              <span className="text-gradient">
-                {theme === 'cyber' && 'Terjangkau'}
-                {theme === 'startup' && 'Pricing'}
-                {theme === 'dark-corporate' && 'Investment'}
-              </span>
-            </h2>
-          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {packages &&
-              packages.slice(0, 3).map((pkg, index) => {
+            <div className="text-center mt-12">
+              <Link href="/portofolio" className="btn-secondary">
+                <span className="flex items-center">
+                  {theme === 'cyber' && '$ VIEW_ALL_PROJECTS'}
+                  {theme === 'startup' && 'View All Projects'}
+                  {theme === 'dark-corporate' && 'VIEW ALL DEPLOYMENTS'}
+                  <ArrowRightIcon className="ml-2 h-5 w-5" />
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Pricing Section */}
+      {packages && packages.length > 0 && (
+        <section className="section">
+          <div className="container-custom">
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
+                style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
+              >
+                {theme === 'cyber' && <CurrencyDollarIcon className="h-5 w-5 mr-2" />}
+                {theme === 'startup' && <PresentationChartLineIcon className="h-5 w-5 mr-2" />}
+                {theme === 'dark-corporate' && <VariableIcon className="h-5 w-5 mr-2" />}
+                <span
+                  className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+                >
+                  {theme === 'cyber' && 'CONFIGURATION: PAKET'}
+                  {theme === 'startup' && 'INVESTMENT PLANS'}
+                  {theme === 'dark-corporate' && 'STRATEGIC PACKAGES'}
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                {theme === 'cyber' && 'Investasi '}
+                {theme === 'startup' && 'Transparent '}
+                {theme === 'dark-corporate' && 'Corporate '}
+                <span className="text-gradient">
+                  {theme === 'cyber' && 'Terjangkau'}
+                  {theme === 'startup' && 'Pricing'}
+                  {theme === 'dark-corporate' && 'Investment'}
+                </span>
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {packages.slice(0, 3).map((pkg, index) => {
                 const features = parseFeatures(pkg.features);
 
                 return (
@@ -978,7 +919,7 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                     } ${
                       pkg.is_popular
                         ? theme === 'startup'
-                          ? 'border-2 border-blue-500 shadow-lg scale-105 lg:scale-110'
+                          ? 'border-2 border-blue-500 shadow-lg scale-105 lg:scale-105'
                           : theme === 'dark-corporate'
                             ? 'border-2 border-[var(--color-primary)]'
                             : 'border-2 border-[var(--color-primary)] shadow-[var(--shadow-glow)]'
@@ -1043,13 +984,13 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                         className="text-sm leading-relaxed"
                         style={{ color: 'var(--color-text-muted)' }}
                       >
-                        {pkg.description}
+                        {pkg.short_description || pkg.description?.substring(0, 100) || 'Paket layanan profesional'}
                       </p>
                     </div>
 
                     {features.length > 0 && (
                       <div className="space-y-3 mb-8">
-                        {features.slice(0, 4).map((feature, idx) => (
+                        {features.slice(0, 5).map((feature, idx) => (
                           <div key={idx} className="flex items-start">
                             <CheckCircleIcon
                               className="h-5 w-5 mr-3 flex-shrink-0"
@@ -1066,8 +1007,41 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                       </div>
                     )}
 
+                    {/* Jika features kosong, tampilkan placeholder */}
+                    {features.length === 0 && (
+                      <div className="space-y-3 mb-8">
+                        <div className="flex items-start">
+                          <CheckCircleIcon
+                            className="h-5 w-5 mr-3 flex-shrink-0"
+                            style={{ color: 'var(--color-primary)' }}
+                          />
+                          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                            Konsultasi gratis
+                          </span>
+                        </div>
+                        <div className="flex items-start">
+                          <CheckCircleIcon
+                            className="h-5 w-5 mr-3 flex-shrink-0"
+                            style={{ color: 'var(--color-primary)' }}
+                          />
+                          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                            Desain responsif
+                          </span>
+                        </div>
+                        <div className="flex items-start">
+                          <CheckCircleIcon
+                            className="h-5 w-5 mr-3 flex-shrink-0"
+                            style={{ color: 'var(--color-primary)' }}
+                          />
+                          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                            SEO optimized
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     <Link
-                      href={`/pricing/${pkg.slug}`}
+                      href={`/paket/${pkg.slug}`}
                       className={`block w-full text-center py-3 rounded-lg font-semibold transition-all duration-300 ${
                         pkg.is_popular
                           ? 'btn-primary'
@@ -1083,42 +1057,43 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                   </div>
                 );
               })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonials Section */}
-      <section className="section bg-[var(--color-bg-secondary)]">
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-            >
-              <UsersIcon className="h-5 w-5 mr-2" />
-              <span
-                className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+      {testimonials && testimonials.length > 0 && (
+        <section className="section bg-[var(--color-bg-secondary)]">
+          <div className="container-custom">
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
+                style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
               >
-                {theme === 'cyber' && 'USER FEEDBACK'}
-                {theme === 'startup' && 'CLIENT TESTIMONIALS'}
-                {theme === 'dark-corporate' && 'corporate ENDORSEMENTS'}
-              </span>
+                <UsersIcon className="h-5 w-5 mr-2" />
+                <span
+                  className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+                >
+                  {theme === 'cyber' && 'USER FEEDBACK'}
+                  {theme === 'startup' && 'CLIENT TESTIMONIALS'}
+                  {theme === 'dark-corporate' && 'CORPORATE ENDORSEMENTS'}
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                {theme === 'cyber' && 'Kata '}
+                {theme === 'startup' && 'Trusted by '}
+                {theme === 'dark-corporate' && 'Industry '}
+                <span className="text-gradient">
+                  {theme === 'cyber' && 'Mereka'}
+                  {theme === 'startup' && 'Innovators'}
+                  {theme === 'dark-corporate' && 'Leaders'}
+                </span>
+              </h2>
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              {theme === 'cyber' && 'Kata '}
-              {theme === 'startup' && 'Trusted by '}
-              {theme === 'dark-corporate' && 'Industry '}
-              <span className="text-gradient">
-                {theme === 'cyber' && 'Mereka'}
-                {theme === 'startup' && 'Innovators'}
-                {theme === 'dark-corporate' && 'Leaders'}
-              </span>
-            </h2>
-          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials &&
-              testimonials.map((testimonial, index) => (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.slice(0, 6).map((testimonial, index) => (
                 <div
                   key={testimonial.id}
                   className={`transition-all duration-300 animate-fade-in-up ${
@@ -1137,8 +1112,8 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                         className="h-5 w-5"
                         style={{
                           color:
-                            i < testimonial.rating ? 'var(--color-primary)' : 'var(--color-border)',
-                          fill: i < testimonial.rating ? 'var(--color-primary)' : 'none',
+                            i < (testimonial.rating || 5) ? 'var(--color-primary)' : 'var(--color-border)',
+                          fill: i < (testimonial.rating || 5) ? 'var(--color-primary)' : 'none',
                         }}
                       />
                     ))}
@@ -1159,9 +1134,10 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                   </div>
                 </div>
               ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA Section - Theme Specific */}
       <section
@@ -1228,7 +1204,7 @@ export default function Home({ services, packages, portfolios, testimonials, sit
               </Link>
 
               <Link
-                href="https://wa.me/6281234567890"
+                href={`https://wa.me/${siteSettings?.phone?.replace(/\D/g, '') || '6281234567890'}`}
                 target="_blank"
                 className="btn-secondary btn-lg group"
               >
@@ -1238,7 +1214,7 @@ export default function Home({ services, packages, portfolios, testimonials, sit
                   </svg>
                   {theme === 'cyber' && 'WhatsApp Sekarang'}
                   {theme === 'startup' && 'Message on WhatsApp'}
-                  {theme === 'dark-corporate' && 'corporate Contact'}
+                  {theme === 'dark-corporate' && 'Corporate Contact'}
                 </span>
               </Link>
             </div>
@@ -1249,7 +1225,7 @@ export default function Home({ services, packages, portfolios, testimonials, sit
               {theme === 'startup' &&
                 'Free consultation • No hidden fees • 14-day money-back guarantee'}
               {theme === 'dark-corporate' &&
-                'corporate level consultation • NDA available • Strategic roadmap included'}
+                'Corporate level consultation • NDA available • Strategic roadmap included'}
             </p>
           </div>
         </div>

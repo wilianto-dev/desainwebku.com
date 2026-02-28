@@ -4,23 +4,20 @@ import AppLayout from '@/Layouts/AppLayout';
 import {
   ArrowLeftIcon,
   CalendarIcon,
-  TagIcon,
-  UserCircleIcon,
   ArrowRightIcon,
   ShareIcon,
   CodeBracketIcon,
   CommandLineIcon,
   SparklesIcon,
   ShieldCheckIcon,
-  BoltIcon,
   GlobeAltIcon,
-  DevicePhoneMobileIcon,
   ChartBarIcon,
-  ClockIcon,
   CheckCircleIcon,
   DocumentTextIcon,
   CpuChipIcon,
   ServerIcon,
+  BuildingOfficeIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 
 export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
@@ -44,6 +41,63 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
     return () => observer.disconnect();
   }, []);
 
+  // Safe parse for technologies
+  const parseTechnologies = () => {
+    if (!portfolio.technologies) return [];
+    
+    // If it's already an array, return it
+    if (Array.isArray(portfolio.technologies)) {
+      return portfolio.technologies;
+    }
+    
+    // If it's a string, try to parse JSON
+    if (typeof portfolio.technologies === 'string') {
+      try {
+        const parsed = JSON.parse(portfolio.technologies);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        // If parsing fails, split by comma as fallback
+        return portfolio.technologies.split(',').map(t => t.trim());
+      }
+    }
+    
+    return [];
+  };
+
+  // Safe parse for results
+  const parseResults = () => {
+    if (!portfolio.results) return [];
+    
+    // If it's already an array, return it
+    if (Array.isArray(portfolio.results)) {
+      return portfolio.results;
+    }
+    
+    // If it's a string, try to parse JSON
+    if (typeof portfolio.results === 'string') {
+      try {
+        const parsed = JSON.parse(portfolio.results);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        // If parsing fails, split by new line or comma as fallback
+        return portfolio.results.split('\n').map(r => r.trim()).filter(r => r);
+      }
+    }
+    
+    return [];
+  };
+
+  // Get technologies array
+  const technologies = parseTechnologies();
+
+  // Get results array
+  const results = parseResults();
+
+  // Debug di console (hapus setelah production)
+  console.log('Portfolio data:', portfolio);
+  console.log('Technologies:', technologies);
+  console.log('Results:', results);
+
   // Get theme-specific content
   const getThemeContent = () => {
     switch (theme) {
@@ -51,13 +105,12 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
         return {
           backText: '$ RETURN_TO_PORTFOLIO',
           published: 'RELEASE_DATE',
-          created: 'DEVELOPER',
+          completed: 'COMPLETION_DATE',
+          service: 'SERVICE_CATEGORY',
           share: 'SHARE_PROJECT',
           consult: '$ INITIATE_CONSULTATION',
-          challenge: 'CHALLENGE',
-          solution: 'SOLUTION',
-          technology: 'TECH_STACK',
-          result: 'OUTCOME',
+          technologies: 'TECH_STACK',
+          results: 'OUTCOME',
           related: 'RELATED_PROJECTS',
           cta: 'INITIATE_CONSULTATION',
           ctaSub: 'Ready to deploy similar solution?',
@@ -68,13 +121,12 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
         return {
           backText: 'Back to Portfolio',
           published: 'Published on',
-          created: 'Created by',
+          completed: 'Completed on',
+          service: 'Service',
           share: 'Share this project',
           consult: 'Discuss Similar Project',
-          challenge: 'Challenge',
-          solution: 'Solution',
-          technology: 'Technology Stack',
-          result: 'Results',
+          technologies: 'Technology Stack',
+          results: 'Results',
           related: 'More Projects',
           cta: 'Like What You See?',
           ctaSub: 'Let\'s build something great together',
@@ -83,15 +135,14 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
         };
       case 'dark-corporate':
         return {
-          backText: '← PORTFOLIO',
-          published: 'DEPLOYMENT DATE',
-          created: 'PROJECT LEAD',
+          backText: 'PORTFOLIO',
+          published: 'PUBLISHED',
+          completed: 'COMPLETED',
+          service: 'SOLUTION TYPE',
           share: 'SHARE CASE STUDY',
           consult: 'SCHEDULE STRATEGIC BRIEFING',
-          challenge: 'CHALLENGE',
-          solution: 'SOLUTION',
-          technology: 'ENTERPRISE STACK',
-          result: 'ROI ANALYSIS',
+          technologies: 'ENTERPRISE STACK',
+          results: 'ROI ANALYSIS',
           related: 'RELATED DEPLOYMENTS',
           cta: 'INTERESTED IN THIS SOLUTION?',
           ctaSub: 'Schedule a corporate briefing with our strategic team',
@@ -99,7 +150,21 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
           servicesButton: 'VIEW SOLUTIONS',
         };
       default:
-        return {};
+        return {
+          backText: 'Kembali ke Portofolio',
+          published: 'Dipublikasikan',
+          completed: 'Selesai',
+          service: 'Layanan',
+          share: 'Bagikan',
+          consult: 'Diskusi Proyek Serupa',
+          technologies: 'Teknologi',
+          results: 'Hasil',
+          related: 'Proyek Lainnya',
+          cta: 'Tertarik dengan Proyek Ini?',
+          ctaSub: 'Diskusikan kebutuhan Anda dengan kami',
+          ctaButton: 'Konsultasi Gratis',
+          servicesButton: 'Lihat Layanan',
+        };
     }
   };
 
@@ -107,7 +172,7 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
 
   // Format date based on theme
   const formatDate = (date) => {
-    if (!date) return theme === 'cyber' ? 'PENDING_RELEASE' : 'Belum dipublikasikan';
+    if (!date) return theme === 'cyber' ? 'PENDING' : '-';
     
     if (theme === 'cyber') {
       return new Date(date).toLocaleDateString('en-US', {
@@ -126,29 +191,29 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
     }
     
     return new Date(date).toLocaleDateString('id-ID', {
-      weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
   };
 
-  // Mock project details - in real app these would come from the backend
-  const projectDetails = {
-    challenge: portfolio.challenge || 'Proyek ini menghadapi tantangan dalam membuat antarmuka yang user-friendly sekaligus memenuhi kebutuhan fungsional yang kompleks dari klien.',
-    solution: portfolio.solution || 'Kami mengembangkan solusi dengan pendekatan agile, melakukan testing berulang, dan memastikan setiap fitur berfungsi optimal sebelum diluncurkan.',
-    technologies: portfolio.technologies || ['React.js', 'Laravel', 'MySQL', 'REST API'],
-    results: portfolio.results || 'Klien mengalami peningkatan signifikan dalam konversi dan engagement pengguna setelah implementasi solusi kami.',
-    metrics: portfolio.metrics || {
-      performance: '+40%',
-      conversion: '+25%',
-      engagement: '+60%',
-    },
+  // Format technology name based on theme
+  const formatTechnology = (tech) => {
+    if (!tech) return '';
+    if (theme === 'cyber') {
+      return tech.toUpperCase().replace(/\s/g, '_');
+    }
+    if (theme === 'dark-corporate') {
+      return tech.toUpperCase();
+    }
+    return tech;
   };
 
   return (
-    <AppLayout title={`${portfolio.title} - Desainwebku Portfolio`}>
-      {/* Back Navigation - Theme Specific */}
+    <AppLayout title={`${portfolio.title} - Desainwebku`}>
+      <Head title={portfolio.title} />
+
+      {/* Back Navigation */}
       <section
         className="sticky top-16 md:top-20 z-40 py-4 border-y transition-theme"
         style={{
@@ -207,44 +272,34 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
                 }`}
               >
                 <img
-                  src={
-                    portfolio.image ||
-                    (theme === 'cyber'
-                      ? 'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                      : theme === 'dark-corporate'
-                        ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                        : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')
-                  }
+                  src={portfolio.image || 'https://via.placeholder.com/800x600?text=Project+Image'}
                   alt={portfolio.title}
-                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-auto object-cover"
                 />
 
                 {/* Theme-specific overlay effects */}
                 {theme === 'cyber' && (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute top-4 left-4">
-                      <span
-                        className="px-3 py-1.5 text-xs font-mono rounded-full border"
-                        style={{
-                          borderColor: 'var(--color-primary)',
-                          color: 'var(--color-primary)',
-                          backgroundColor: 'rgba(0,0,0,0.7)',
-                          backdropFilter: 'blur(4px)',
-                        }}
-                      >
-                        {portfolio.category?.toUpperCase().replace(/\s/g, '_') || 'WEB_DEVELOPMENT'}
-                      </span>
-                    </div>
-                  </>
+                  <div className="absolute top-4 left-4">
+                    <span
+                      className="px-3 py-1.5 text-xs font-mono rounded-full border"
+                      style={{
+                        borderColor: 'var(--color-primary)',
+                        color: 'var(--color-primary)',
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        backdropFilter: 'blur(4px)',
+                      }}
+                    >
+                      {portfolio.service?.title?.toUpperCase().replace(/\s/g, '_') || 'PROJECT'}
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Portfolio Details */}
             <div className="animate-fade-in-up animation-delay-200">
-              {/* Category Badge - Non-cyber themes */}
-              {theme !== 'cyber' && (
+              {/* Service Badge - Non-cyber themes */}
+              {theme !== 'cyber' && portfolio.service && (
                 <div className="mb-6">
                   <span
                     className={`px-4 py-1.5 text-sm font-medium rounded-full ${
@@ -262,7 +317,7 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
                       borderColor: 'var(--color-primary)',
                     }}
                   >
-                    {portfolio.category || 'Web Development'}
+                    {portfolio.service.title}
                   </span>
                 </div>
               )}
@@ -283,39 +338,40 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
 
               {/* Metadata */}
               <div className="space-y-3 mb-8">
-                <div
-                  className="flex items-center text-sm"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  <CalendarIcon className="h-4 w-4 mr-2" style={{ color: 'var(--color-primary)' }} />
-                  <span className={theme === 'cyber' ? 'font-mono text-xs' : ''}>
-                    {themeContent.published}: {formatDate(portfolio.published_at)}
-                  </span>
-                </div>
-
-                {portfolio.user && (
+                {portfolio.published_at && (
                   <div
                     className="flex items-center text-sm"
                     style={{ color: 'var(--color-text-muted)' }}
                   >
-                    <UserCircleIcon className="h-4 w-4 mr-2" style={{ color: 'var(--color-primary)' }} />
+                    <CalendarIcon className="h-4 w-4 mr-2" style={{ color: 'var(--color-primary)' }} />
                     <span className={theme === 'cyber' ? 'font-mono text-xs' : ''}>
-                      {themeContent.created}:{' '}
-                      <span style={{ color: 'var(--color-text-secondary)' }}>
-                        {portfolio.user.name}
-                      </span>
+                      {themeContent.published}: {formatDate(portfolio.published_at)}
                     </span>
                   </div>
                 )}
 
-                {portfolio.tech && theme === 'cyber' && (
+                {portfolio.completion_date && (
                   <div
                     className="flex items-center text-sm"
                     style={{ color: 'var(--color-text-muted)' }}
                   >
-                    <CodeBracketIcon className="h-4 w-4 mr-2" style={{ color: 'var(--color-primary)' }} />
+                    <CalendarIcon className="h-4 w-4 mr-2" style={{ color: 'var(--color-primary)' }} />
+                    <span className={theme === 'cyber' ? 'font-mono text-xs' : ''}>
+                      {themeContent.completed}: {formatDate(portfolio.completion_date)}
+                    </span>
+                  </div>
+                )}
+
+                {portfolio.service && theme === 'cyber' && (
+                  <div
+                    className="flex items-center text-sm"
+                    style={{ color: 'var(--color-text-muted)' }}
+                  >
+                    <BuildingOfficeIcon className="h-4 w-4 mr-2" style={{ color: 'var(--color-primary)' }} />
                     <span className="font-mono text-xs">
-                      PRIMARY_STACK: <span style={{ color: 'var(--color-primary)' }}>{portfolio.tech}</span>
+                      {themeContent.service}: <span style={{ color: 'var(--color-primary)' }}>
+                        {portfolio.service.title.toUpperCase().replace(/\s/g, '_')}
+                      </span>
                     </span>
                   </div>
                 )}
@@ -366,256 +422,151 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
         </div>
       </section>
 
-      {/* Project Details Section - Theme Specific */}
-      <section
-        className="py-16 lg:py-20 transition-theme"
-        style={{
-          backgroundColor: 'var(--color-bg-secondary)',
-          borderTopWidth: '1px',
-          borderTopColor: 'var(--color-border)',
-          borderBottomWidth: '1px',
-          borderBottomColor: 'var(--color-border)',
-        }}
-      >
-        <div className="container-custom">
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-            >
-              {theme === 'cyber' && <CpuChipIcon className="h-5 w-5 mr-2" />}
-              {theme === 'startup' && <DocumentTextIcon className="h-5 w-5 mr-2" />}
-              {theme === 'dark-corporate' && <ServerIcon className="h-5 w-5 mr-2" />}
-              <span
-                className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+      {/* Technologies & Results Section */}
+      {(technologies.length > 0 || results.length > 0) && (
+        <section
+          className="py-16 lg:py-20 transition-theme"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderTopWidth: '1px',
+            borderTopColor: 'var(--color-border)',
+            borderBottomWidth: '1px',
+            borderBottomColor: 'var(--color-border)',
+          }}
+        >
+          <div className="container-custom">
+            {/* Section Header */}
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
+                style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
               >
-                {theme === 'cyber' && 'PROJECT_SPECIFICATIONS'}
-                {theme === 'startup' && 'Project Details'}
-                {theme === 'dark-corporate' && 'CASE STUDY ANALYSIS'}
-              </span>
-            </div>
-            <h2
-              className={`text-2xl md:text-3xl font-bold ${
-                theme === 'cyber' ? 'font-mono' : ''
-              }`}
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {theme === 'cyber' && 'DETAILED_ANALYSIS'}
-              {theme === 'startup' && 'In-Depth Overview'}
-              {theme === 'dark-corporate' && 'STRATEGIC BREAKDOWN'}
-            </h2>
-          </div>
-
-          {/* Project Stats - Cyber Theme */}
-          {theme === 'cyber' && projectDetails.metrics && (
-            <div className="grid grid-cols-3 gap-4 mb-12 max-w-3xl mx-auto">
-              <div className="text-center p-4 border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-                <div className="text-2xl font-mono font-bold" style={{ color: 'var(--color-primary)' }}>
-                  {projectDetails.metrics.performance}
-                </div>
-                <div className="text-xs font-mono mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                  PERFORMANCE
-                </div>
-              </div>
-              <div className="text-center p-4 border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-                <div className="text-2xl font-mono font-bold" style={{ color: 'var(--color-primary)' }}>
-                  {projectDetails.metrics.conversion}
-                </div>
-                <div className="text-xs font-mono mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                  CONVERSION
-                </div>
-              </div>
-              <div className="text-center p-4 border border-[var(--color-border)] bg-[var(--color-bg-card)]">
-                <div className="text-2xl font-mono font-bold" style={{ color: 'var(--color-primary)' }}>
-                  {projectDetails.metrics.engagement}
-                </div>
-                <div className="text-xs font-mono mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                  ENGAGEMENT
-                </div>
+                {theme === 'cyber' && <CpuChipIcon className="h-5 w-5 mr-2" />}
+                {theme === 'startup' && <DocumentTextIcon className="h-5 w-5 mr-2" />}
+                {theme === 'dark-corporate' && <ServerIcon className="h-5 w-5 mr-2" />}
+                <span
+                  className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+                >
+                  {theme === 'cyber' && 'PROJECT_SPECIFICATIONS'}
+                  {theme === 'startup' && 'Project Details'}
+                  {theme === 'dark-corporate' && 'CASE STUDY ANALYSIS'}
+                </span>
               </div>
             </div>
-          )}
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {/* Challenge */}
-            <div
-              className={`p-6 lg:p-8 transition-theme ${
-                theme === 'cyber'
-                  ? 'card-cyber'
-                  : theme === 'startup'
-                    ? 'bg-white rounded-xl shadow-md'
-                    : 'card-corporate'
-              }`}
-            >
-              <div className="flex items-center mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+              {/* Technologies */}
+              {technologies.length > 0 && (
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
-                  style={{ background: 'var(--gradient-primary)' }}
-                >
-                  <span className="text-white font-bold">01</span>
-                </div>
-                <h3
-                  className={`font-bold ${
+                  className={`p-6 lg:p-8 transition-theme ${
                     theme === 'cyber'
-                      ? 'font-mono text-lg'
-                      : theme === 'dark-corporate'
-                        ? 'uppercase tracking-wider'
-                        : 'text-xl'
+                      ? 'card-cyber'
+                      : theme === 'startup'
+                        ? 'bg-white rounded-xl shadow-md'
+                        : 'card-corporate'
                   }`}
-                  style={{ color: 'var(--color-text-primary)' }}
                 >
-                  {themeContent.challenge}
-                </h3>
-              </div>
-              <p
-                className={`leading-relaxed ${
-                  theme === 'cyber' ? 'font-mono text-sm' : 'text-gray-600'
-                }`}
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {projectDetails.challenge}
-              </p>
-            </div>
+                  <div className="flex items-center mb-4">
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
+                      style={{ background: 'var(--gradient-primary)' }}
+                    >
+                      <CodeBracketIcon className="h-5 w-5 text-white" />
+                    </div>
+                    <h3
+                      className={`font-bold ${
+                        theme === 'cyber'
+                          ? 'font-mono text-lg'
+                          : theme === 'dark-corporate'
+                            ? 'uppercase tracking-wider'
+                            : 'text-xl'
+                      }`}
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {themeContent.technologies}
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {technologies.map((tech, index) => (
+                      <span
+                        key={index}
+                        className={`px-3 py-1.5 text-xs rounded ${
+                          theme === 'cyber'
+                            ? 'border font-mono'
+                            : theme === 'dark-corporate'
+                              ? 'uppercase tracking-wider border'
+                              : 'bg-[var(--color-bg-secondary)]'
+                        }`}
+                        style={{
+                          borderColor: 'var(--color-border)',
+                          color: theme === 'cyber' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                          backgroundColor: theme === 'startup' ? 'var(--color-bg-secondary)' : 'transparent',
+                        }}
+                      >
+                        {formatTechnology(tech)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            {/* Solution */}
-            <div
-              className={`p-6 lg:p-8 transition-theme ${
-                theme === 'cyber'
-                  ? 'card-cyber'
-                  : theme === 'startup'
-                    ? 'bg-white rounded-xl shadow-md'
-                    : 'card-corporate'
-              }`}
-            >
-              <div className="flex items-center mb-4">
+              {/* Results */}
+              {results.length > 0 && (
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
-                  style={{ background: 'var(--gradient-primary)' }}
-                >
-                  <span className="text-white font-bold">02</span>
-                </div>
-                <h3
-                  className={`font-bold ${
+                  className={`p-6 lg:p-8 transition-theme ${
                     theme === 'cyber'
-                      ? 'font-mono text-lg'
-                      : theme === 'dark-corporate'
-                        ? 'uppercase tracking-wider'
-                        : 'text-xl'
+                      ? 'card-cyber'
+                      : theme === 'startup'
+                        ? 'bg-white rounded-xl shadow-md'
+                        : 'card-corporate'
                   }`}
-                  style={{ color: 'var(--color-text-primary)' }}
                 >
-                  {themeContent.solution}
-                </h3>
-              </div>
-              <p
-                className={`leading-relaxed ${
-                  theme === 'cyber' ? 'font-mono text-sm' : 'text-gray-600'
-                }`}
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {projectDetails.solution}
-              </p>
-            </div>
-
-            {/* Technologies */}
-            <div
-              className={`p-6 lg:p-8 transition-theme ${
-                theme === 'cyber'
-                  ? 'card-cyber'
-                  : theme === 'startup'
-                    ? 'bg-white rounded-xl shadow-md'
-                    : 'card-corporate'
-              }`}
-            >
-              <div className="flex items-center mb-4">
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
-                  style={{ background: 'var(--gradient-primary)' }}
-                >
-                  <CodeBracketIcon className="h-5 w-5 text-white" />
+                  <div className="flex items-center mb-4">
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
+                      style={{ background: 'var(--gradient-primary)' }}
+                    >
+                      <ChartBarIcon className="h-5 w-5 text-white" />
+                    </div>
+                    <h3
+                      className={`font-bold ${
+                        theme === 'cyber'
+                          ? 'font-mono text-lg'
+                          : theme === 'dark-corporate'
+                            ? 'uppercase tracking-wider'
+                            : 'text-xl'
+                      }`}
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {themeContent.results}
+                    </h3>
+                  </div>
+                  <ul className="space-y-3">
+                    {results.map((result, index) => (
+                      <li key={index} className="flex items-start">
+                        <CheckCircleIcon
+                          className="h-5 w-5 mr-3 flex-shrink-0"
+                          style={{ color: 'var(--color-primary)' }}
+                        />
+                        <span
+                          className={`text-sm leading-relaxed ${
+                            theme === 'cyber' ? 'font-mono' : ''
+                          }`}
+                          style={{ color: 'var(--color-text-secondary)' }}
+                        >
+                          {result}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3
-                  className={`font-bold ${
-                    theme === 'cyber'
-                      ? 'font-mono text-lg'
-                      : theme === 'dark-corporate'
-                        ? 'uppercase tracking-wider'
-                        : 'text-xl'
-                  }`}
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
-                  {themeContent.technology}
-                </h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {projectDetails.technologies.map((tech, index) => (
-                  <span
-                    key={index}
-                    className={`px-3 py-1.5 text-xs rounded ${
-                      theme === 'cyber'
-                        ? 'border font-mono'
-                        : theme === 'dark-corporate'
-                          ? 'uppercase tracking-wider border'
-                          : 'bg-[var(--color-bg-secondary)]'
-                    }`}
-                    style={{
-                      borderColor: 'var(--color-border)',
-                      color: theme === 'cyber' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                      backgroundColor: theme === 'startup' ? 'var(--color-bg-secondary)' : 'transparent',
-                    }}
-                  >
-                    {theme === 'cyber' ? tech.toUpperCase().replace(/\s/g, '_') : tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Results */}
-            <div
-              className={`p-6 lg:p-8 transition-theme ${
-                theme === 'cyber'
-                  ? 'card-cyber'
-                  : theme === 'startup'
-                    ? 'bg-white rounded-xl shadow-md'
-                    : 'card-corporate'
-              }`}
-            >
-              <div className="flex items-center mb-4">
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
-                  style={{ background: 'var(--gradient-primary)' }}
-                >
-                  <ChartBarIcon className="h-5 w-5 text-white" />
-                </div>
-                <h3
-                  className={`font-bold ${
-                    theme === 'cyber'
-                      ? 'font-mono text-lg'
-                      : theme === 'dark-corporate'
-                        ? 'uppercase tracking-wider'
-                        : 'text-xl'
-                  }`}
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
-                  {themeContent.result}
-                </h3>
-              </div>
-              <p
-                className={`leading-relaxed ${
-                  theme === 'cyber' ? 'font-mono text-sm' : 'text-gray-600'
-                }`}
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {projectDetails.results}
-              </p>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Related Portfolios - Theme Specific */}
+      {/* Related Portfolios */}
       {relatedPortfolios && relatedPortfolios.length > 0 && (
         <section className="py-16 lg:py-20 transition-theme">
           <div className="container-custom">
@@ -662,34 +613,13 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={
-                        related.image ||
-                        (theme === 'cyber'
-                          ? 'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                          : theme === 'dark-corporate'
-                            ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                            : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')
-                      }
+                      src={related.image || 'https://via.placeholder.com/800x600?text=Project+Image'}
                       alt={related.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div
                       className={`absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                     ></div>
-                    {theme === 'cyber' && (
-                      <div className="absolute top-3 left-3">
-                        <span
-                          className="px-2 py-1 text-xs font-mono rounded-full border"
-                          style={{
-                            borderColor: 'var(--color-primary)',
-                            color: 'var(--color-primary)',
-                            backgroundColor: 'rgba(0,0,0,0.7)',
-                          }}
-                        >
-                          {related.category?.toUpperCase().replace(/\s/g, '_') || 'WEB'}
-                        </span>
-                      </div>
-                    )}
                   </div>
                   <div className="p-5">
                     <h3
@@ -704,12 +634,6 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
                     >
                       {related.title}
                     </h3>
-                    <p
-                      className="text-sm mb-4 line-clamp-2"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      {related.description}
-                    </p>
                     <Link
                       href={`/portofolio/${related.slug}`}
                       className={`inline-flex items-center text-sm font-medium transition-all duration-300 group-hover:translate-x-1 ${
@@ -734,7 +658,7 @@ export default function PortfolioDetail({ portfolio, relatedPortfolios }) {
         </section>
       )}
 
-      {/* CTA Section - Theme Specific */}
+      {/* CTA Section */}
       <section
         className="py-20 relative overflow-hidden transition-theme"
         style={{

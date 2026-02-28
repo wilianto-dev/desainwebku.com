@@ -11,12 +11,15 @@ class Package extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
+        'service_id',
         'name',
         'slug',
+        'short_description',
         'description',
         'features',
         'price',
+        'duration',
+        'sort_order',
         'status',
         'is_popular',
     ];
@@ -25,11 +28,13 @@ class Package extends Model
         'features' => 'array',
         'price' => 'decimal:2',
         'is_popular' => 'boolean',
+        'duration' => 'integer',
+        'sort_order' => 'integer',
     ];
 
-    public function user()
+    public function service()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Service::class);
     }
 
     public function orders()

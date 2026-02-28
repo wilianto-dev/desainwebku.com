@@ -12,22 +12,39 @@ return new class extends Migration
     public function up(): void
     {
        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('service_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('package_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('order_number')->unique();
-            $table->enum('status', ['pending', 'paid', 'completed', 'cancelled'])->default('pending');
-            $table->decimal('total_price', 12, 2);
-            $table->text('notes')->nullable();
-            $table->timestamp('paid_at')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-            
-            // Ensure either service_id or package_id is set, but not both
-            $table->index(['user_id', 'status']);
-            $table->index('order_number');
-        });
+    $table->id();
+
+    $table->foreignId('user_id')
+        ->constrained()
+        ->cascadeOnDelete();
+
+    $table->foreignId('package_id')
+        ->constrained()
+        ->cascadeOnDelete();
+
+    $table->string('order_number')->unique();
+
+    $table->enum('status', [
+        'pending',
+        'paid',
+        'in_progress',
+        'completed',
+        'cancelled'
+    ])->default('pending');
+
+    $table->decimal('total_price', 15, 2);
+
+    $table->text('notes')->nullable();
+
+    $table->timestamp('paid_at')->nullable();
+    $table->timestamp('started_at')->nullable();
+    $table->timestamp('completed_at')->nullable();
+
+    $table->timestamps();
+    $table->softDeletes();
+
+    $table->index(['user_id', 'status']);
+});
     }
 
     /**

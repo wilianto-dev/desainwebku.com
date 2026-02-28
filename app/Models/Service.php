@@ -11,31 +11,34 @@ class Service extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
         'title',
         'slug',
+        'short_description',
         'description',
-        'features',
-        'price',
-        'duration',
+        'icon',
+        'sort_order',
         'status',
         'is_featured',
     ];
 
     protected $casts = [
-        'features' => 'array',
-        'price' => 'decimal:2',
         'is_featured' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
-    public function user()
+    public function packages()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Package::class);
     }
 
-    public function orders()
+    public function portfolios()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Portfolio::class);
+    }
+
+    public function testimonials()
+    {
+        return $this->hasMany(Testimonial::class);
     }
 
     public function scopeActive($query)
@@ -47,34 +50,4 @@ class Service extends Model
     {
         return $query->where('is_featured', true);
     }
-
-    // Tambahkan method ini ke model Service
-protected $appends = ['parsed_features'];
-
-public function getParsedFeaturesAttribute()
-{
-    $features = $this->attributes['features'] ?? null;
-    
-    if (is_null($features)) {
-        return [];
-    }
-    
-    if (is_array($features)) {
-        return $features;
-    }
-    
-    if (is_string($features)) {
-        try {
-            $decoded = json_decode($features, true);
-            return is_array($decoded) ? $decoded : [];
-        } catch (\Exception $e) {
-            return [];
-        }
-    }
-    
-    return [];
-}
-
-
-
 }

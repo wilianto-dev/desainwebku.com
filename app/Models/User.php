@@ -1,5 +1,4 @@
 <?php
-// app/Models/User.php
 
 namespace App\Models;
 
@@ -37,33 +36,56 @@ class User extends Authenticatable
     ];
 
     // Relasi
-    public function services()
-    {
-        return $this->hasMany(Service::class);
-    }
-
-    public function packages()
-    {
-        return $this->hasMany(Package::class);
-    }
-
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-    public function portfolios()
-    {
-        return $this->hasMany(Portfolio::class);
-    }
-
-    public function pages()
-    {
-        return $this->hasMany(Page::class);
-    }
-
     public function testimonials()
     {
         return $this->hasMany(Testimonial::class);
+    }
+
+    // Scope untuk status
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('status', 'inactive');
+    }
+
+    public function scopeBanned($query)
+    {
+        return $query->where('status', 'banned');
+    }
+
+    // Helper methods
+    public function isActive()
+    {
+        return $this->status === 'active';
+    }
+
+    public function isBanned()
+    {
+        return $this->status === 'banned';
+    }
+
+    public function updateLastLogin()
+    {
+        $this->update(['last_login_at' => now()]);
+    }
+
+    // Accessor untuk avatar
+    public function getAvatarAttribute($value)
+    {
+        if ($value) {
+            return $value;
+        }
+        
+        // Default avatar dari UI Avatars
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=0D8F81&color=fff';
     }
 }

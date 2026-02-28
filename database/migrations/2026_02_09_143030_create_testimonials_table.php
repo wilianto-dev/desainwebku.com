@@ -12,18 +12,29 @@ return new class extends Migration
     public function up(): void
     {
          Schema::create('testimonials', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->string('company')->nullable();
-            $table->unsignedTinyInteger('rating')->default(5);
-            $table->text('content');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->timestamps();
-            $table->softDeletes();
-            
-            $table->index(['status', 'rating']);
-        });
+    $table->id();
+
+    $table->foreignId('service_id')
+        ->nullable()
+        ->constrained()
+        ->nullOnDelete();
+
+    $table->string('name');
+    $table->string('company')->nullable();
+    $table->unsignedTinyInteger('rating')->default(5);
+    $table->text('content');
+
+    $table->enum('status', [
+        'pending',
+        'approved',
+        'rejected'
+    ])->default('pending');
+
+    $table->timestamps();
+    $table->softDeletes();
+
+    $table->index(['status', 'rating']);
+});
     }
 
     /**

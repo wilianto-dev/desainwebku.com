@@ -3,10 +3,8 @@ import { Link, Head } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import {
   CheckCircleIcon,
-  FunnelIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
-  ClockIcon,
   ArrowRightIcon,
   BoltIcon,
   SparklesIcon,
@@ -16,12 +14,17 @@ import {
   ChevronDownIcon,
   Squares2X2Icon,
   ListBulletIcon,
+  CodeBracketIcon,
+  DevicePhoneMobileIcon,
+  ShoppingCartIcon,
+  BriefcaseIcon,
+  WrenchScrewdriverIcon,
+  PaintBrushIcon,
+  ServerIcon,
 } from '@heroicons/react/24/outline';
 
 export default function Services({ services, packages }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState([0, 10000000]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // grid or list
   const [theme, setTheme] = useState('cyber');
@@ -44,47 +47,30 @@ export default function Services({ services, packages }) {
     return () => observer.disconnect();
   }, []);
 
-  // Helper function to parse features
-  const parseFeatures = (features) => {
-    if (!features) return [];
-    try {
-      if (Array.isArray(features)) return features;
-      if (typeof features === 'string') {
-        const parsed = JSON.parse(features);
-        return Array.isArray(parsed) ? parsed : [];
-      }
-      return [];
-    } catch (error) {
-      console.error('Error parsing features:', error);
-      return [];
-    }
-  };
-
-  // Format price to IDR
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  // Extract unique categories from services
-  const categories = ['all', ...new Set(services?.map((s) => s.category || 'Uncategorized') || [])];
-
   // Filter services
-  const filteredServices =
-    services?.filter((service) => {
-      const matchesSearch =
-        service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === 'all' || (service.category || 'Uncategorized') === selectedCategory;
-      const matchesPrice = service.price >= priceRange[0] && service.price <= priceRange[1];
+  const filteredServices = services?.filter((service) => {
+    const matchesSearch =
+      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (service.short_description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (service.description || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesSearch && matchesCategory && matchesPrice;
-    }) || [];
+    return matchesSearch;
+  }) || [];
+
+  // Get icon component based on service icon class
+  const getServiceIcon = (iconClass) => {
+    const iconMap = {
+      'fas fa-building': BriefcaseIcon,
+      'fas fa-shopping-cart': ShoppingCartIcon,
+      'fas fa-laptop-code': CodeBracketIcon,
+      'fas fa-mobile-alt': DevicePhoneMobileIcon,
+      'fas fa-paint-brush': PaintBrushIcon,
+      'fas fa-tools': WrenchScrewdriverIcon,
+      'fas fa-code': CodeBracketIcon,
+      'fas fa-server': ServerIcon,
+    };
+    return iconMap[iconClass] || CodeBracketIcon;
+  };
 
   // Get theme-specific hero content
   const getHeroContent = () => {
@@ -114,22 +100,23 @@ export default function Services({ services, packages }) {
           status: 'ACTIVE',
         };
       default:
-        return {};
+        return {
+          badge: 'LAYANAN KAMI',
+          badgeIcon: BoltIcon,
+          title: ['Layanan', 'Professional'],
+          description: 'Solusi pengembangan website untuk bisnis Anda.',
+          status: 'ACTIVE',
+        };
     }
   };
 
   const hero = getHeroContent();
   const BadgeIcon = hero.badgeIcon;
 
-  // Price range marks
-  const priceMarks = [
-    { value: 0, label: '0' },
-    { value: 5000000, label: '5jt' },
-    { value: 10000000, label: '10jt' },
-  ];
-
   return (
     <AppLayout title="Layanan - Desainwebku">
+      <Head title="Layanan" />
+
       {/* Hero Section - Theme Specific */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-24 overflow-hidden transition-theme">
         {/* Theme-specific hero backgrounds */}
@@ -137,21 +124,6 @@ export default function Services({ services, packages }) {
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-bg-primary)] via-black to-[var(--color-bg-primary)]"></div>
             <div className="grid-pattern absolute inset-0 opacity-20"></div>
-            <div className="absolute inset-0 overflow-hidden">
-              {[...Array(10)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute text-[var(--color-primary)] font-mono text-xs opacity-10"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animation: `flicker ${Math.random() * 3 + 2}s infinite`,
-                  }}
-                >
-                  {Math.random() > 0.5 ? '0' : '1'}
-                </div>
-              ))}
-            </div>
           </>
         )}
 
@@ -222,9 +194,7 @@ export default function Services({ services, packages }) {
                   {services?.length || 0}+
                 </div>
                 <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  {theme === 'cyber' && 'SERVICES'}
-                  {theme === 'startup' && 'Services'}
-                  {theme === 'dark-corporate' && 'SOLUTIONS'}
+                  {theme === 'cyber' ? 'SERVICES' : theme === 'dark-corporate' ? 'SOLUTIONS' : 'Layanan'}
                 </div>
               </div>
               <div className="text-center">
@@ -235,9 +205,7 @@ export default function Services({ services, packages }) {
                   {packages?.length || 0}
                 </div>
                 <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  {theme === 'cyber' && 'PACKAGES'}
-                  {theme === 'startup' && 'Packages'}
-                  {theme === 'dark-corporate' && 'STRATEGIES'}
+                  {theme === 'cyber' ? 'PACKAGES' : theme === 'dark-corporate' ? 'STRATEGIES' : 'Paket'}
                 </div>
               </div>
               <div className="text-center">
@@ -248,9 +216,7 @@ export default function Services({ services, packages }) {
                   24/7
                 </div>
                 <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  {theme === 'cyber' && 'SUPPORT'}
-                  {theme === 'startup' && 'Support'}
-                  {theme === 'dark-corporate' && 'ASSISTANCE'}
+                  {theme === 'cyber' ? 'SUPPORT' : theme === 'dark-corporate' ? 'ASSISTANCE' : 'Support'}
                 </div>
               </div>
             </div>
@@ -258,7 +224,7 @@ export default function Services({ services, packages }) {
         </div>
       </section>
 
-      {/* Filter Section - Theme Specific */}
+      {/* Filter Section */}
       <section
         className="sticky top-16 md:top-20 z-40 py-4 border-y transition-theme"
         style={{
@@ -283,9 +249,9 @@ export default function Services({ services, packages }) {
                       ? '$ SEARCH_SERVICES...'
                       : theme === 'dark-corporate'
                         ? 'SEARCH SOLUTIONS...'
-                        : 'Search services...'
+                        : 'Cari layanan...'
                   }
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg transition-theme focus:outline-none focus:ring-2"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg transition-theme focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                   style={{
                     backgroundColor: 'var(--color-bg-card)',
                     borderColor: 'var(--color-border)',
@@ -333,41 +299,6 @@ export default function Services({ services, packages }) {
 
             {/* Filter Controls */}
             <div className="flex flex-wrap items-center gap-3">
-              {/* Category Filter */}
-              <div className="flex flex-wrap gap-2">
-                {categories.slice(0, 4).map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      theme === 'cyber' ? 'font-mono' : ''
-                    }`}
-                    style={{
-                      backgroundColor:
-                        selectedCategory === category
-                          ? 'var(--color-primary)'
-                          : 'var(--color-bg-card)',
-                      color:
-                        selectedCategory === category
-                          ? 'var(--color-bg-primary)'
-                          : 'var(--color-text-secondary)',
-                      borderWidth: '1px',
-                      borderColor: selectedCategory === category 
-                        ? 'var(--color-primary)' 
-                        : 'var(--color-border)',
-                    }}
-                  >
-                    {category === 'all' 
-                      ? theme === 'cyber' 
-                        ? 'ALL' 
-                        : theme === 'dark-corporate' 
-                          ? 'ALL' 
-                          : 'Semua'
-                      : category}
-                  </button>
-                ))}
-              </div>
-
               {/* Filter Button */}
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
@@ -389,13 +320,9 @@ export default function Services({ services, packages }) {
               </button>
 
               {/* Reset Filter */}
-              {(searchTerm || selectedCategory !== 'all' || priceRange[0] > 0 || priceRange[1] < 10000000) && (
+              {searchTerm && (
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategory('all');
-                    setPriceRange([0, 10000000]);
-                  }}
+                  onClick={() => setSearchTerm('')}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-theme"
                   style={{
                     color: 'var(--color-text-muted)',
@@ -409,107 +336,6 @@ export default function Services({ services, packages }) {
               )}
             </div>
           </div>
-
-          {/* Advanced Filter Panel */}
-          {filterOpen && (
-            <div
-              className="mt-4 p-6 rounded-lg border transition-theme animate-slide-up"
-              style={{
-                backgroundColor: 'var(--color-bg-card)',
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <div className="space-y-4">
-                {/* Price Range */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                      {theme === 'cyber' ? 'PRICE RANGE (IDR)' : 'Rentang Harga'}
-                    </span>
-                    <span
-                      className="text-sm px-3 py-1 rounded-full"
-                      style={{
-                        backgroundColor: 'var(--color-bg-secondary)',
-                        color: 'var(--color-primary)',
-                      }}
-                    >
-                      {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="range"
-                      min="0"
-                      max="10000000"
-                      step="100000"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                      className="w-full"
-                      style={{
-                        accentColor: 'var(--color-primary)',
-                      }}
-                    />
-                    <input
-                      type="range"
-                      min="0"
-                      max="10000000"
-                      step="100000"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                      className="w-full"
-                      style={{
-                        accentColor: 'var(--color-primary)',
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    {priceMarks.map((mark) => (
-                      <span
-                        key={mark.value}
-                        className="text-xs"
-                        style={{ color: 'var(--color-text-muted)' }}
-                      >
-                        {mark.label}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* All Categories */}
-                {categories.length > 4 && (
-                  <div>
-                    <span
-                      className="text-sm font-medium block mb-3"
-                      style={{ color: 'var(--color-text-primary)' }}
-                    >
-                      {theme === 'cyber' ? 'ALL CATEGORIES' : 'Semua Kategori'}
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.slice(4).map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => setSelectedCategory(category)}
-                          className="px-3 py-1.5 rounded-lg text-xs transition-theme"
-                          style={{
-                            backgroundColor:
-                              selectedCategory === category
-                                ? 'var(--color-primary)'
-                                : 'var(--color-bg-secondary)',
-                            color:
-                              selectedCategory === category
-                                ? 'var(--color-bg-primary)'
-                                : 'var(--color-text-secondary)',
-                          }}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
@@ -587,26 +413,16 @@ export default function Services({ services, packages }) {
                 className="text-xl font-bold mb-2"
                 style={{ color: 'var(--color-text-primary)' }}
               >
-                {theme === 'cyber' && 'NO SERVICES FOUND'}
-                {theme === 'startup' && 'No Services Found'}
-                {theme === 'dark-corporate' && 'NO MATCHING SOLUTIONS'}
+                {theme === 'cyber' ? 'NO SERVICES FOUND' : theme === 'dark-corporate' ? 'NO MATCHING SOLUTIONS' : 'Layanan Tidak Ditemukan'}
               </h3>
               <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
-                {theme === 'cyber' && 'TRY ADJUSTING YOUR SEARCH PARAMETERS'}
-                {theme === 'startup' && 'Try adjusting your search or filters'}
-                {theme === 'dark-corporate' && 'Adjust search criteria for results'}
+                {theme === 'cyber' ? 'TRY ADJUSTING YOUR SEARCH PARAMETERS' : 'Coba ubah kata kunci pencarian'}
               </p>
               <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('all');
-                  setPriceRange([0, 10000000]);
-                }}
+                onClick={() => setSearchTerm('')}
                 className="btn-primary"
               >
-                {theme === 'cyber' && '$ RESET_FILTERS'}
-                {theme === 'startup' && 'Reset Filters'}
-                {theme === 'dark-corporate' && 'CLEAR PARAMETERS'}
+                {theme === 'cyber' ? '$ RESET_FILTERS' : theme === 'dark-corporate' ? 'CLEAR PARAMETERS' : 'Reset Pencarian'}
               </button>
             </div>
           ) : (
@@ -615,7 +431,7 @@ export default function Services({ services, packages }) {
               {viewMode === 'grid' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredServices.map((service, index) => {
-                    const features = parseFeatures(service.features);
+                    const IconComponent = getServiceIcon(service.icon);
                     return (
                       <div
                         key={service.id}
@@ -631,18 +447,12 @@ export default function Services({ services, packages }) {
                         <div className="p-6">
                           {/* Header */}
                           <div className="flex items-start justify-between mb-4">
-                            <h3
-                              className={`font-bold ${
-                                theme === 'cyber'
-                                  ? 'font-mono text-lg'
-                                  : theme === 'dark-corporate'
-                                    ? 'uppercase tracking-wider text-base'
-                                    : 'text-xl'
-                              }`}
-                              style={{ color: 'var(--color-text-primary)' }}
+                            <div
+                              className="w-12 h-12 rounded-lg flex items-center justify-center"
+                              style={{ background: 'var(--gradient-primary)' }}
                             >
-                              {service.title}
-                            </h3>
+                              <IconComponent className="h-6 w-6 text-white" />
+                            </div>
                             {service.is_featured && (
                               <span
                                 className={`px-2 py-1 text-xs rounded ${
@@ -653,19 +463,37 @@ export default function Services({ services, packages }) {
                                       : ''
                                 }`}
                                 style={{
-                                  backgroundColor: theme === 'startup' ? 'var(--color-primary)' : 'transparent',
-                                  color: theme === 'startup' ? 'white' : 'var(--color-primary)',
+                                  color: 'var(--color-primary)',
                                   borderColor: 'var(--color-primary)',
                                 }}
                               >
-                                {theme === 'cyber' && 'FEATURED'}
-                                {theme === 'startup' && 'Featured'}
-                                {theme === 'dark-corporate' && 'STRATEGIC'}
+                                {theme === 'cyber' ? 'FEATURED' : 'Featured'}
                               </span>
                             )}
                           </div>
 
-                          {/* Category Badge */}
+                          <h3
+                            className={`font-bold mb-3 ${
+                              theme === 'cyber'
+                                ? 'font-mono text-lg'
+                                : theme === 'dark-corporate'
+                                  ? 'uppercase tracking-wider text-base'
+                                  : 'text-xl'
+                            }`}
+                            style={{ color: 'var(--color-text-primary)' }}
+                          >
+                            {service.title}
+                          </h3>
+
+                          {/* Description */}
+                          <p
+                            className="text-sm mb-4 line-clamp-3 leading-relaxed"
+                            style={{ color: 'var(--color-text-muted)' }}
+                          >
+                            {service.short_description || service.description}
+                          </p>
+
+                          {/* Packages Count */}
                           <div className="mb-4">
                             <span
                               className="text-xs px-2 py-1 rounded"
@@ -674,95 +502,32 @@ export default function Services({ services, packages }) {
                                 color: 'var(--color-text-muted)',
                               }}
                             >
-                              {service.category || (theme === 'cyber' ? 'UNCATEGORIZED' : 'Uncategorized')}
+                              {packages?.filter(p => p.service?.id === service.id).length || 0} Paket Tersedia
                             </span>
                           </div>
 
-                          {/* Description */}
-                          <p
-                            className="text-sm mb-4 line-clamp-2 leading-relaxed"
-                            style={{ color: 'var(--color-text-muted)' }}
-                          >
-                            {service.description}
-                          </p>
-
-                          {/* Features */}
-                          {features.length > 0 && (
-                            <div className="mb-6 space-y-2">
-                              {features.slice(0, 3).map((feature, idx) => (
-                                <div key={idx} className="flex items-start">
-                                  <CheckCircleIcon
-                                    className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5"
-                                    style={{ color: 'var(--color-primary)' }}
-                                  />
-                                  <span
-                                    className="text-xs"
-                                    style={{ color: 'var(--color-text-secondary)' }}
-                                  >
-                                    {feature}
-                                  </span>
-                                </div>
-                              ))}
-                              {features.length > 3 && (
-                                <span
-                                  className="text-xs"
-                                  style={{ color: 'var(--color-primary)' }}
-                                >
-                                  +{features.length - 3} more features
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Price and Actions */}
+                          {/* Action */}
                           <div
                             className="pt-4 border-t"
                             style={{ borderColor: 'var(--color-border)' }}
                           >
                             <div className="flex items-center justify-between">
-                              <div>
-                                <p
-                                  className="text-2xl font-bold"
-                                  style={{ color: 'var(--color-primary)' }}
-                                >
-                                  {formatPrice(service.price)}
-                                </p>
-                                <p
-                                  className="text-xs flex items-center mt-1"
-                                  style={{ color: 'var(--color-text-muted)' }}
-                                >
-                                  <ClockIcon className="h-3 w-3 mr-1" />
-                                  {service.duration} {theme === 'cyber' ? 'DAYS' : 'hari'}
-                                </p>
-                              </div>
-                              <div className="flex space-x-2">
-                                <Link
-                                  href={`/layanan/${service.slug}`}
-                                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
-                                    theme === 'cyber'
-                                      ? 'border hover:border-[var(--color-primary)]'
-                                      : theme === 'startup'
-                                        ? 'text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10'
-                                        : 'btn-secondary'
-                                  }`}
-                                  style={{
-                                    backgroundColor: theme === 'startup' ? 'transparent' : undefined,
-                                    borderColor: 'var(--color-border)',
-                                  }}
-                                >
-                                  {theme === 'cyber' && '$ DETAILS'}
-                                  {theme === 'startup' && 'Details'}
-                                  {theme === 'dark-corporate' && 'ANALYZE'}
-                                </Link>
-                                <Link
-                                  href={route('order.service', service.id)}
-                                  className="btn-primary px-4 py-2 text-sm"
-                                >
-                                  {theme === 'cyber' && 'ORDER'}
-                                  {theme === 'startup' && 'Order'}
-                                  {theme === 'dark-corporate' && 'DEPLOY'}
-                                </Link>
-                              </div>
+                              <Link
+                                href={`/layanan/${service.slug}`}
+                                className={`inline-flex items-center text-sm font-medium transition-all duration-300 group ${
+                                  theme === 'cyber'
+                                    ? 'font-mono hover:text-[var(--color-primary)]'
+                                    : theme === 'dark-corporate'
+                                      ? 'uppercase tracking-wider text-xs hover:text-[var(--color-primary)]'
+                                      : 'hover:text-[var(--color-primary)]'
+                                }`}
+                                style={{ color: 'var(--color-primary)' }}
+                              >
+                                {theme === 'cyber' && '$ VIEW_PACKAGES'}
+                                {theme === 'startup' && 'View Packages'}
+                                {theme === 'dark-corporate' && 'VIEW SOLUTIONS'}
+                                <ArrowRightIcon className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -776,7 +541,9 @@ export default function Services({ services, packages }) {
               {viewMode === 'list' && (
                 <div className="space-y-4">
                   {filteredServices.map((service, index) => {
-                    const features = parseFeatures(service.features);
+                    const IconComponent = getServiceIcon(service.icon);
+                    const servicePackages = packages?.filter(p => p.service?.id === service.id) || [];
+                    
                     return (
                       <div
                         key={service.id}
@@ -793,61 +560,42 @@ export default function Services({ services, packages }) {
                           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                             {/* Left Column - Main Info */}
                             <div className="flex-1">
-                              <div className="flex items-start justify-between mb-2">
-                                <h3
-                                  className={`font-bold ${
-                                    theme === 'cyber'
-                                      ? 'font-mono text-xl'
-                                      : theme === 'dark-corporate'
-                                        ? 'uppercase tracking-wider text-lg'
-                                        : 'text-2xl'
-                                  }`}
-                                  style={{ color: 'var(--color-text-primary)' }}
+                              <div className="flex items-start mb-4">
+                                <div
+                                  className="w-12 h-12 rounded-lg flex items-center justify-center mr-4 flex-shrink-0"
+                                  style={{ background: 'var(--gradient-primary)' }}
                                 >
-                                  {service.title}
-                                </h3>
-                                {service.is_featured && (
-                                  <span
-                                    className={`ml-4 px-3 py-1 text-xs rounded ${
+                                  <IconComponent className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                  <h3
+                                    className={`font-bold ${
                                       theme === 'cyber'
-                                        ? 'font-mono border'
+                                        ? 'font-mono text-xl'
                                         : theme === 'dark-corporate'
-                                          ? 'uppercase tracking-wider'
-                                          : ''
+                                          ? 'uppercase tracking-wider text-lg'
+                                          : 'text-2xl'
                                     }`}
-                                    style={{
-                                      backgroundColor: theme === 'startup' ? 'var(--color-primary)' : 'transparent',
-                                      color: theme === 'startup' ? 'white' : 'var(--color-primary)',
-                                      borderColor: 'var(--color-primary)',
-                                    }}
+                                    style={{ color: 'var(--color-text-primary)' }}
                                   >
-                                    {theme === 'cyber' && 'FEATURED'}
-                                    {theme === 'startup' && 'Featured'}
-                                    {theme === 'dark-corporate' && 'STRATEGIC'}
-                                  </span>
-                                )}
-                              </div>
-
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                <span
-                                  className="text-xs px-3 py-1.5 rounded"
-                                  style={{
-                                    backgroundColor: 'var(--color-bg-secondary)',
-                                    color: 'var(--color-text-muted)',
-                                  }}
-                                >
-                                  {service.category || (theme === 'cyber' ? 'UNCATEGORIZED' : 'Uncategorized')}
-                                </span>
-                                <span
-                                  className="text-xs px-3 py-1.5 rounded flex items-center"
-                                  style={{
-                                    backgroundColor: 'var(--color-bg-secondary)',
-                                    color: 'var(--color-text-muted)',
-                                  }}
-                                >
-                                  <ClockIcon className="h-3 w-3 mr-1" />
-                                  {service.duration} {theme === 'cyber' ? 'DAYS' : 'hari'}
-                                </span>
+                                    {service.title}
+                                  </h3>
+                                  {service.is_featured && (
+                                    <span
+                                      className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${
+                                        theme === 'cyber'
+                                          ? 'font-mono border'
+                                          : ''
+                                      }`}
+                                      style={{
+                                        color: 'var(--color-primary)',
+                                        borderColor: 'var(--color-primary)',
+                                      }}
+                                    >
+                                      {theme === 'cyber' ? 'FEATURED' : 'Featured'}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
 
                               <p
@@ -857,73 +605,55 @@ export default function Services({ services, packages }) {
                                 {service.description}
                               </p>
 
-                              {features.length > 0 && (
-                                <div className="grid grid-cols-2 gap-2 mt-4">
-                                  {features.slice(0, 4).map((feature, idx) => (
-                                    <div key={idx} className="flex items-center">
-                                      <CheckCircleIcon
-                                        className="h-4 w-4 mr-2 flex-shrink-0"
-                                        style={{ color: 'var(--color-primary)' }}
-                                      />
+                              {/* Packages Preview */}
+                              {servicePackages.length > 0 && (
+                                <div className="mt-4">
+                                  <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                    Paket tersedia:
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {servicePackages.slice(0, 3).map(pkg => (
                                       <span
-                                        className="text-xs"
-                                        style={{ color: 'var(--color-text-secondary)' }}
+                                        key={pkg.id}
+                                        className="text-xs px-2 py-1 rounded"
+                                        style={{
+                                          backgroundColor: 'var(--color-bg-secondary)',
+                                          color: 'var(--color-text-secondary)',
+                                        }}
                                       >
-                                        {feature}
+                                        {pkg.name}
                                       </span>
-                                    </div>
-                                  ))}
+                                    ))}
+                                    {servicePackages.length > 3 && (
+                                      <span
+                                        className="text-xs px-2 py-1 rounded"
+                                        style={{
+                                          backgroundColor: 'var(--color-bg-secondary)',
+                                          color: 'var(--color-primary)',
+                                        }}
+                                      >
+                                        +{servicePackages.length - 3} lainnya
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               )}
                             </div>
 
-                            {/* Right Column - Price & Actions */}
-                            <div className="lg:w-64 flex flex-row lg:flex-col items-center lg:items-stretch justify-between lg:justify-center gap-4 lg:gap-6">
-                              <div className="text-center lg:text-left">
-                                <p
-                                  className="text-3xl font-bold"
-                                  style={{ color: 'var(--color-primary)' }}
-                                >
-                                  {formatPrice(service.price)}
-                                </p>
-                                <p
-                                  className="text-xs mt-1"
-                                  style={{ color: 'var(--color-text-muted)' }}
-                                >
-                                  {theme === 'cyber' && 'ONE-TIME PAYMENT'}
-                                  {theme === 'startup' && 'One-time payment'}
-                                  {theme === 'dark-corporate' && 'SINGLE DEPLOYMENT'}
-                                </p>
-                              </div>
-                              
-                              <div className="flex flex-row lg:flex-col gap-2">
-                                <Link
-                                  href={`/layanan/${service.slug}`}
-                                  className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 text-center ${
-                                    theme === 'cyber'
-                                      ? 'border hover:border-[var(--color-primary)]'
-                                      : theme === 'startup'
-                                        ? 'border border-gray-300 hover:border-[var(--color-primary)]'
-                                        : 'btn-secondary'
-                                  }`}
-                                  style={{
-                                    color: 'var(--color-text-secondary)',
-                                    borderColor: 'var(--color-border)',
-                                  }}
-                                >
-                                  {theme === 'cyber' && 'VIEW DETAILS'}
-                                  {theme === 'startup' && 'Details'}
-                                  {theme === 'dark-corporate' && 'SPECIFICATIONS'}
-                                </Link>
-                                <Link
-                                 href={route('order.service', service.id)}
-                                  className="btn-primary px-6 py-2.5 text-sm text-center"
-                                >
-                                  {theme === 'cyber' && 'INITIATE ORDER'}
-                                  {theme === 'startup' && 'Order Now'}
-                                  {theme === 'dark-corporate' && 'DEPLOY SOLUTION'}
-                                </Link>
-                              </div>
+                            {/* Right Column - Action */}
+                            <div className="lg:w-48 flex flex-col items-stretch justify-center gap-3">
+                              <Link
+                                href={`/layanan/${service.slug}`}
+                                className="btn-primary text-center"
+                              >
+                                {theme === 'cyber' ? 'VIEW PACKAGES' : 'Lihat Paket'}
+                              </Link>
+                              <Link
+                                href="/kontak"
+                                className="btn-secondary text-center"
+                              >
+                                Konsultasi
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -937,177 +667,178 @@ export default function Services({ services, packages }) {
         </div>
       </section>
 
-      {/* Packages Section - Theme Specific */}
-      <section
-        className="py-20 border-t transition-theme"
-        style={{
-          backgroundColor: 'var(--color-bg-secondary)',
-          borderColor: 'var(--color-border)',
-        }}
-      >
-        <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
-            >
-              {theme === 'cyber' && <BoltIcon className="h-5 w-5 mr-2" />}
-              {theme === 'startup' && <SparklesIcon className="h-5 w-5 mr-2" />}
-              {theme === 'dark-corporate' && <ShieldCheckIcon className="h-5 w-5 mr-2" />}
-              <span
-                className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
+      {/* Packages Section */}
+      {packages && packages.length > 0 && (
+        <section
+          className="py-20 border-t transition-theme"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderColor: 'var(--color-border)',
+          }}
+        >
+          <div className="container-custom">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-full border mb-6"
+                style={{ borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
               >
-                {theme === 'cyber' && 'PACKAGE CONFIGURATIONS'}
-                {theme === 'startup' && 'COMPLETE SOLUTIONS'}
-                {theme === 'dark-corporate' && 'STRATEGIC PACKAGES'}
-              </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              {theme === 'cyber' && 'Paket '}
-              {theme === 'startup' && 'Ready-to-Deploy '}
-              {theme === 'dark-corporate' && 'Enterprise '}
-              <span className="text-gradient">
-                {theme === 'cyber' && 'Lengkap'}
-                {theme === 'startup' && 'Solutions'}
-                {theme === 'dark-corporate' && 'Strategies'}
-              </span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto ">
-            {packages?.map((pkg, index) => {
-              const features = parseFeatures(pkg.features);
-              const isPopular = pkg.is_popular;
-
-              return (
-                <div
-                  key={pkg.id}
-                  className={`group relative transition-all duration-500 animate-fade-in-up ${
-                    theme === 'cyber'
-                      ? 'card-cyber p-6'
-                      : theme === 'startup'
-                        ? 'bg-white rounded-xl p-8 shadow-md hover:shadow-xl'
-                        : 'card-corporate p-8'
-                  } ${
-                    isPopular
-                      ? theme === 'startup'
-                        ? 'border-2 border-[var(--color-primary)] shadow-lg scale-105 lg:scale-110 my-10'
-                        : theme === 'dark-corporate'
-                          ? 'border-2 border-[var(--color-primary)]'
-                          : 'border-2 border-[var(--color-primary)] shadow-[var(--shadow-glow)]'
-                      : ''
-                  }`}
-                  style={{ animationDelay: `${index * 150}ms` }}
+                {theme === 'cyber' && <BoltIcon className="h-5 w-5 mr-2" />}
+                {theme === 'startup' && <SparklesIcon className="h-5 w-5 mr-2" />}
+                {theme === 'dark-corporate' && <ShieldCheckIcon className="h-5 w-5 mr-2" />}
+                <span
+                  className={`text-sm font-medium ${theme === 'dark-corporate' ? 'uppercase tracking-wider' : ''}`}
                 >
-                  {/* Popular Badge */}
-                  {isPopular && (
-                    <div
-                      className={`absolute -top-3 left-1/2 transform -translate-x-1/2 whitespace-nowrap ${
-                        theme === 'startup'
-                          ? 'bg-[var(--color-primary)] text-white px-4 py-1.5 rounded-full text-xs font-bold'
-                          : theme === 'dark-corporate'
-                            ? 'px-4 py-1.5 text-xs uppercase tracking-wider'
-                            : 'px-4 py-1.5 bg-[var(--color-primary)] text-black text-xs font-mono rounded-full'
-                      }`}
-                      style={
-                        theme === 'dark-corporate'
-                          ? {
-                              backgroundColor: 'var(--color-primary)',
-                              color: 'var(--color-bg-primary)',
-                            }
-                          : {}
-                      }
-                    >
-                      {theme === 'cyber' && 'RECOMMENDED'}
-                      {theme === 'startup' && 'MOST POPULAR'}
-                      {theme === 'dark-corporate' && 'STRATEGIC CHOICE'}
-                    </div>
-                  )}
+                  {theme === 'cyber' ? 'POPULAR PACKAGES' : theme === 'dark-corporate' ? 'STRATEGIC PACKAGES' : 'Paket Populer'}
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                Pilih Paket <span className="text-gradient">Sesuai Kebutuhan</span>
+              </h2>
+            </div>
 
-                  {/* Package Header */}
-                  <div className="text-center mb-6">
-                    <h3
-                      className={`text-xl md:text-2xl font-bold mb-3 ${
-                        theme === 'cyber'
-                          ? 'font-mono'
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {packages.slice(0, 3).map((pkg, index) => {
+                const features = pkg.features || [];
+                
+                const formatPrice = (price) => {
+                  return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(price);
+                };
+
+                return (
+                  <div
+                    key={pkg.id}
+                    className={`group relative transition-all duration-500 animate-fade-in-up ${
+                      theme === 'cyber'
+                        ? 'card-cyber p-6'
+                        : theme === 'startup'
+                          ? 'bg-white rounded-xl p-8 shadow-md hover:shadow-xl'
+                          : 'card-corporate p-8'
+                    } ${
+                      pkg.is_popular
+                        ? theme === 'startup'
+                          ? 'border-2 border-[var(--color-primary)] shadow-lg scale-105 lg:scale-105'
                           : theme === 'dark-corporate'
-                            ? 'uppercase tracking-wider'
-                            : ''
-                      }`}
-                      style={{ color: 'var(--color-text-primary)' }}
-                    >
-                      {pkg.name}
-                    </h3>
-                    <div className="flex items-center justify-center mb-3">
-                      <span
-                        className="text-3xl md:text-4xl font-bold"
-                        style={{ color: 'var(--color-primary)' }}
+                            ? 'border-2 border-[var(--color-primary)]'
+                            : 'border-2 border-[var(--color-primary)] shadow-[var(--shadow-glow)]'
+                        : ''
+                    }`}
+                    style={{ animationDelay: `${index * 150}ms` }}
+                  >
+                    {pkg.is_popular && (
+                      <div
+                        className={`absolute -top-3 left-1/2 transform -translate-x-1/2 whitespace-nowrap ${
+                          theme === 'startup'
+                            ? 'bg-[var(--color-primary)] text-white px-4 py-1.5 rounded-full text-xs font-bold'
+                            : theme === 'dark-corporate'
+                              ? 'px-4 py-1.5 text-xs uppercase tracking-wider'
+                              : 'px-4 py-1.5 bg-[var(--color-primary)] text-black text-xs font-mono rounded-full'
+                        }`}
+                        style={
+                          theme === 'dark-corporate'
+                            ? {
+                                backgroundColor: 'var(--color-primary)',
+                                color: 'var(--color-bg-primary)',
+                              }
+                            : {}
+                        }
                       >
-                        {formatPrice(pkg.price)}
-                      </span>
-                      <span
-                        className="ml-2 text-sm"
+                        {theme === 'cyber' && 'RECOMMENDED'}
+                        {theme === 'startup' && 'MOST POPULAR'}
+                        {theme === 'dark-corporate' && 'STRATEGIC CHOICE'}
+                      </div>
+                    )}
+
+                    {/* Package Header */}
+                    <div className="text-center mb-6">
+                      <h3
+                        className={`text-xl md:text-2xl font-bold mb-3 ${
+                          theme === 'cyber'
+                            ? 'font-mono'
+                            : theme === 'dark-corporate'
+                              ? 'uppercase tracking-wider'
+                              : ''
+                        }`}
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {pkg.name}
+                      </h3>
+                      <div className="flex items-center justify-center mb-3">
+                        <span
+                          className="text-3xl md:text-4xl font-bold"
+                          style={{ color: 'var(--color-primary)' }}
+                        >
+                          {formatPrice(pkg.price)}
+                        </span>
+                        <span
+                          className="ml-2 text-sm"
+                          style={{ color: 'var(--color-text-muted)' }}
+                        >
+                          /proyek
+                        </span>
+                      </div>
+                      <p
+                        className="text-sm leading-relaxed"
                         style={{ color: 'var(--color-text-muted)' }}
                       >
-                        /{theme === 'cyber' ? 'PROJECT' : 'proyek'}
-                      </span>
+                        {pkg.short_description || pkg.description}
+                      </p>
+                      {pkg.service && (
+                        <p
+                          className="text-xs mt-2"
+                          style={{ color: 'var(--color-primary)' }}
+                        >
+                          {pkg.service.title}
+                        </p>
+                      )}
                     </div>
-                    <p
-                      className="text-sm leading-relaxed"
-                      style={{ color: 'var(--color-text-muted)' }}
+
+                    {/* Features List */}
+                    {features.length > 0 && (
+                      <div className="space-y-3 mb-8">
+                        {features.slice(0, 5).map((feature, idx) => (
+                          <div key={idx} className="flex items-start">
+                            <CheckCircleIcon
+                              className="h-5 w-5 mr-3 flex-shrink-0"
+                              style={{ color: 'var(--color-primary)' }}
+                            />
+                            <span
+                              className="text-sm leading-relaxed"
+                              style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                              {feature}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* CTA Button */}
+                    <Link
+                      href={`/paket/${pkg.slug}`}
+                      className={`block w-full text-center py-3 rounded-lg font-semibold transition-all duration-300 ${
+                        pkg.is_popular
+                          ? 'btn-primary'
+                          : theme === 'startup'
+                            ? 'border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
+                            : 'btn-secondary'
+                      }`}
                     >
-                      {pkg.description}
-                    </p>
+                      {theme === 'cyber' ? '$ VIEW_PACKAGE' : 'Lihat Paket'}
+                    </Link>
                   </div>
-
-                  {/* Features List */}
-                  {features.length > 0 && (
-                    <div className="space-y-3 mb-8">
-                      {features.map((feature, idx) => (
-                        <div key={idx} className="flex items-start">
-                          <CheckCircleIcon
-                            className="h-5 w-5 mr-3 flex-shrink-0"
-                            style={{ color: 'var(--color-primary)' }}
-                          />
-                          <span
-                            className="text-sm leading-relaxed"
-                            style={{ color: 'var(--color-text-secondary)' }}
-                          >
-                            {feature}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* CTA Button */}
-                  <Link
-                    href={`/pesanan/paket/${pkg.id}`}
-                    className={`block w-full text-center py-3 rounded-lg font-semibold transition-all duration-300 ${
-                      isPopular
-                        ? 'btn-primary'
-                        : theme === 'startup'
-                          ? 'border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
-                          : 'btn-secondary'
-                    }`}
-                    style={{
-                      backgroundColor:
-                        isPopular && theme === 'startup' ? 'var(--color-primary)' : undefined,
-                      color: isPopular && theme === 'startup' ? 'white' : undefined,
-                    }}
-                  >
-                    {theme === 'cyber' && '$ DEPLOY_PACKAGE'}
-                    {theme === 'startup' && 'Select Package'}
-                    {theme === 'dark-corporate' && 'IMPLEMENT STRATEGY'}
-                  </Link>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* CTA Section - Theme Specific */}
+      {/* CTA Section */}
       <section
         className="py-20 relative overflow-hidden transition-theme"
         style={{
@@ -1118,87 +849,27 @@ export default function Services({ services, packages }) {
               : 'radial-gradient(circle at 30% 50%, rgba(59,130,246,0.15), rgba(34,211,238,0.05))',
         }}
       >
-        {/* Theme-specific decorations */}
-        {theme === 'cyber' && (
-          <>
-            <div className="grid-pattern absolute inset-0 opacity-10"></div>
-            <div className="absolute inset-0 overflow-hidden">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute text-[var(--color-primary)] font-mono text-xs opacity-10"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animation: `flicker ${Math.random() * 3 + 2}s infinite`,
-                  }}
-                >
-                  {Math.random() > 0.5 ? '0' : '1'}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
         <div className="container-custom relative">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              {theme === 'cyber' && 'Butuh Layanan '}
-              {theme === 'startup' && 'Need a '}
-              {theme === 'dark-corporate' && 'Require '}
-              <span className="text-gradient">
-                {theme === 'cyber' && 'Khusus?'}
-                {theme === 'startup' && 'Custom Solution?'}
-                {theme === 'dark-corporate' && 'Tailored Strategy?'}
-              </span>
+              Butuh Layanan <span className="text-gradient">Khusus?</span>
             </h2>
             
             <p
               className="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              {theme === 'cyber' &&
-                'Konsultasikan kebutuhan spesifik Anda. Saya siap mendengarkan dan memberikan solusi terbaik.'}
-              {theme === 'startup' &&
-                'Tell us about your specific requirements. We\'ll create a custom solution just for you.'}
-              {theme === 'dark-corporate' &&
-                'Discuss your enterprise requirements with our strategic team. Custom solutions for unique challenges.'}
+              Konsultasikan kebutuhan spesifik Anda. Kami siap mendengarkan dan memberikan solusi terbaik.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/kontak" className="btn-primary btn-lg group">
                 <span className="flex items-center">
-                  {theme === 'cyber' && 'Konsultasi Gratis'}
-                  {theme === 'startup' && 'Free Consultation'}
-                  {theme === 'dark-corporate' && 'Strategic Consultation'}
+                  Konsultasi Gratis
                   <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Link>
-
-              <Link
-                href="https://wa.me/6281234567890"
-                target="_blank"
-                className="btn-secondary btn-lg group"
-              >
-                <span className="flex items-center">
-                  <svg className="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-                  </svg>
-                  {theme === 'cyber' && 'WhatsApp Sekarang'}
-                  {theme === 'startup' && 'Message on WhatsApp'}
-                  {theme === 'dark-corporate' && 'Corporate Contact'}
-                </span>
-              </Link>
             </div>
-
-            <p className="text-sm mt-8" style={{ color: 'var(--color-text-muted)' }}>
-              {theme === 'cyber' &&
-                '✓ Konsultasi tanpa biaya ✓ Langsung dengan developer ✓ Response dalam 1 jam'}
-              {theme === 'startup' &&
-                '✓ Free 30-min consultation ✓ No obligations ✓ Fast response'}
-              {theme === 'dark-corporate' &&
-                '✓ Strategic analysis ✓ NDA available ✓ 24h initial response'}
-            </p>
           </div>
         </div>
       </section>

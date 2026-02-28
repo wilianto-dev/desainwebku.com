@@ -4,24 +4,20 @@ import AppLayout from '@/Layouts/AppLayout';
 import {
   ArrowRightIcon,
   CalendarIcon,
-  TagIcon,
-  FunnelIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
   CodeBracketIcon,
   CommandLineIcon,
   SparklesIcon,
   ShieldCheckIcon,
-  ComputerDesktopIcon,
-  DevicePhoneMobileIcon,
-  GlobeAltIcon,
-  ChartBarIcon,
   AdjustmentsHorizontalIcon,
   ChevronDownIcon,
+  FolderIcon,
+  BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
 
-export default function Portfolio({ portfolios, categories }) {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+export default function Portfolio({ portfolios, technologies }) {
+  const [selectedTechnology, setSelectedTechnology] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [theme, setTheme] = useState('cyber');
@@ -45,16 +41,17 @@ export default function Portfolio({ portfolios, categories }) {
   }, []);
 
   // Filter portfolios
-  const filteredPortfolios =
-    portfolios?.filter((portfolio) => {
-      const matchesCategory = selectedCategory === 'all' || portfolio.category === selectedCategory;
-      const matchesSearch =
-        portfolio.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        portfolio.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (portfolio.tech && portfolio.tech.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredPortfolios = portfolios?.filter((portfolio) => {
+    const matchesSearch = 
+      portfolio.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      portfolio.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (portfolio.service?.title || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesCategory && matchesSearch;
-    }) || [];
+    const matchesTechnology = selectedTechnology === 'all' || 
+      (portfolio.technologies && portfolio.technologies.includes(selectedTechnology));
+
+    return matchesSearch && matchesTechnology;
+  }) || [];
 
   // Get theme-specific hero content
   const getHeroContent = () => {
@@ -84,29 +81,37 @@ export default function Portfolio({ portfolios, categories }) {
           status: 'VERIFIED',
         };
       default:
-        return {};
+        return {
+          badge: 'PORTFOLIO',
+          badgeIcon: FolderIcon,
+          title: ['Karya', 'Terbaik'],
+          description: 'Koleksi proyek pengembangan website kami.',
+          status: 'ACTIVE',
+        };
     }
   };
 
   const hero = getHeroContent();
   const BadgeIcon = hero.badgeIcon;
 
-  // Get category display name
-  const getCategoryName = (category) => {
+  // Format technology name based on theme
+  const formatTechnology = (tech) => {
     if (theme === 'cyber') {
-      return category.toUpperCase().replace(' ', '_');
+      return tech.toUpperCase().replace(/\s/g, '_');
     }
     if (theme === 'dark-corporate') {
-      return category.toUpperCase();
+      return tech.toUpperCase();
     }
-    return category;
+    return tech;
   };
 
   return (
     <AppLayout title="Portofolio - Desainwebku">
-      {/* Hero Section - Theme Specific */}
+      <Head title="Portofolio" />
+
+      {/* Hero Section */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-24 overflow-hidden transition-theme">
-        {/* Theme-specific hero backgrounds */}
+        {/* Theme-specific backgrounds */}
         {theme === 'cyber' && (
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-bg-primary)] via-black to-[var(--color-bg-primary)]"></div>
@@ -193,12 +198,10 @@ export default function Portfolio({ portfolios, categories }) {
                   className="text-2xl font-bold mb-1"
                   style={{ color: 'var(--color-primary)' }}
                 >
-                  {portfolios?.length || 0}+
+                  {portfolios?.length || 0}
                 </div>
                 <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  {theme === 'cyber' && 'PROJECTS'}
-                  {theme === 'startup' && 'Projects'}
-                  {theme === 'dark-corporate' && 'DEPLOYMENTS'}
+                  {theme === 'cyber' ? 'PROJECTS' : theme === 'dark-corporate' ? 'DEPLOYMENTS' : 'Proyek'}
                 </div>
               </div>
               <div className="text-center">
@@ -206,12 +209,10 @@ export default function Portfolio({ portfolios, categories }) {
                   className="text-2xl font-bold mb-1"
                   style={{ color: 'var(--color-primary)' }}
                 >
-                  {categories?.length || 0}
+                  {technologies?.length || 0}
                 </div>
                 <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  {theme === 'cyber' && 'CATEGORIES'}
-                  {theme === 'startup' && 'Categories'}
-                  {theme === 'dark-corporate' && 'SECTORS'}
+                  {theme === 'cyber' ? 'TECHNOLOGIES' : theme === 'dark-corporate' ? 'STACKS' : 'Teknologi'}
                 </div>
               </div>
               <div className="text-center">
@@ -222,9 +223,7 @@ export default function Portfolio({ portfolios, categories }) {
                   100%
                 </div>
                 <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  {theme === 'cyber' && 'SUCCESS_RATE'}
-                  {theme === 'startup' && 'Satisfaction'}
-                  {theme === 'dark-corporate' && 'SUCCESS'}
+                  {theme === 'cyber' ? 'SUCCESS_RATE' : theme === 'dark-corporate' ? 'SUCCESS' : 'Sukses'}
                 </div>
               </div>
             </div>
@@ -232,7 +231,7 @@ export default function Portfolio({ portfolios, categories }) {
         </div>
       </section>
 
-      {/* Filter Section - Theme Specific */}
+      {/* Filter Section */}
       <section
         className="sticky top-16 md:top-20 z-40 py-4 border-y transition-theme"
         style={{
@@ -257,7 +256,7 @@ export default function Portfolio({ portfolios, categories }) {
                       ? 'SEARCH DEPLOYMENTS...'
                       : 'Cari portofolio...'
                 }
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg transition-theme focus:outline-none focus:ring-2"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg transition-theme focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 style={{
                   backgroundColor: 'var(--color-bg-card)',
                   borderColor: 'var(--color-border)',
@@ -271,61 +270,59 @@ export default function Portfolio({ portfolios, categories }) {
 
             {/* Filter Controls */}
             <div className="flex items-center gap-3">
-              {/* Category Filter - Desktop */}
+              {/* Technology Filter - Desktop */}
               <div className="hidden lg:flex flex-wrap gap-2">
                 <button
-                  onClick={() => setSelectedCategory('all')}
+                  onClick={() => setSelectedTechnology('all')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     theme === 'cyber' ? 'font-mono' : ''
                   }`}
                   style={{
                     backgroundColor:
-                      selectedCategory === 'all'
+                      selectedTechnology === 'all'
                         ? 'var(--color-primary)'
                         : 'var(--color-bg-card)',
                     color:
-                      selectedCategory === 'all'
+                      selectedTechnology === 'all'
                         ? 'var(--color-bg-primary)'
                         : 'var(--color-text-secondary)',
                     borderWidth: '1px',
-                    borderColor: selectedCategory === 'all'
+                    borderColor: selectedTechnology === 'all'
                       ? 'var(--color-primary)'
                       : 'var(--color-border)',
                   }}
                 >
-                  {theme === 'cyber' && 'ALL'}
-                  {theme === 'startup' && 'Semua'}
-                  {theme === 'dark-corporate' && 'ALL'}
+                  {theme === 'cyber' ? 'ALL_TECH' : theme === 'dark-corporate' ? 'ALL STACKS' : 'Semua'}
                 </button>
                 
-                {categories?.slice(0, 3).map((category) => (
+                {technologies?.slice(0, 4).map((tech) => (
                   <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
+                    key={tech}
+                    onClick={() => setSelectedTechnology(tech)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                       theme === 'cyber' ? 'font-mono' : ''
                     }`}
                     style={{
                       backgroundColor:
-                        selectedCategory === category
+                        selectedTechnology === tech
                           ? 'var(--color-primary)'
                           : 'var(--color-bg-card)',
                       color:
-                        selectedCategory === category
+                        selectedTechnology === tech
                           ? 'var(--color-bg-primary)'
                           : 'var(--color-text-secondary)',
                       borderWidth: '1px',
-                      borderColor: selectedCategory === category
+                      borderColor: selectedTechnology === tech
                         ? 'var(--color-primary)'
                         : 'var(--color-border)',
                     }}
                   >
-                    {getCategoryName(category)}
+                    {formatTechnology(tech)}
                   </button>
                 ))}
               </div>
 
-              {/* Filter Button */}
+              {/* Filter Button - Mobile */}
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
                 className="flex items-center space-x-2 px-4 py-2.5 rounded-lg transition-theme lg:hidden"
@@ -346,10 +343,10 @@ export default function Portfolio({ portfolios, categories }) {
               </button>
 
               {/* Reset Filter */}
-              {(selectedCategory !== 'all' || searchTerm) && (
+              {(selectedTechnology !== 'all' || searchTerm) && (
                 <button
                   onClick={() => {
-                    setSelectedCategory('all');
+                    setSelectedTechnology('all');
                     setSearchTerm('');
                   }}
                   className="flex items-center space-x-2 px-4 py-2.5 rounded-lg transition-theme"
@@ -381,48 +378,48 @@ export default function Portfolio({ portfolios, categories }) {
                 className="text-xs font-medium uppercase tracking-wider block mb-3"
                 style={{ color: 'var(--color-text-muted)' }}
               >
-                {theme === 'cyber' ? 'CATEGORIES' : 'Kategori'}
+                {theme === 'cyber' ? 'TECHNOLOGIES' : 'Teknologi'}
               </span>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => {
-                    setSelectedCategory('all');
+                    setSelectedTechnology('all');
                     setFilterOpen(false);
                   }}
                   className="px-3 py-1.5 rounded-lg text-xs transition-theme"
                   style={{
                     backgroundColor:
-                      selectedCategory === 'all'
+                      selectedTechnology === 'all'
                         ? 'var(--color-primary)'
                         : 'var(--color-bg-secondary)',
                     color:
-                      selectedCategory === 'all'
+                      selectedTechnology === 'all'
                         ? 'var(--color-bg-primary)'
                         : 'var(--color-text-secondary)',
                   }}
                 >
                   {theme === 'cyber' ? 'ALL' : 'Semua'}
                 </button>
-                {categories?.map((category) => (
+                {technologies?.map((tech) => (
                   <button
-                    key={category}
+                    key={tech}
                     onClick={() => {
-                      setSelectedCategory(category);
+                      setSelectedTechnology(tech);
                       setFilterOpen(false);
                     }}
                     className="px-3 py-1.5 rounded-lg text-xs transition-theme"
                     style={{
                       backgroundColor:
-                        selectedCategory === category
+                        selectedTechnology === tech
                           ? 'var(--color-primary)'
                           : 'var(--color-bg-secondary)',
                       color:
-                        selectedCategory === category
+                        selectedTechnology === tech
                           ? 'var(--color-bg-primary)'
                           : 'var(--color-text-secondary)',
                     }}
                   >
-                    {category}
+                    {tech}
                   </button>
                 ))}
               </div>
@@ -452,7 +449,7 @@ export default function Portfolio({ portfolios, categories }) {
               }}
             >
               <div className="mb-4" style={{ color: 'var(--color-text-muted)' }}>
-                <TagIcon className="h-20 w-20 mx-auto" />
+                <FolderIcon className="h-20 w-20 mx-auto" />
               </div>
               <h3
                 className="text-xl font-bold mb-2"
@@ -464,12 +461,12 @@ export default function Portfolio({ portfolios, categories }) {
               </h3>
               <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
                 {theme === 'cyber' && 'TRY ADJUSTING YOUR SEARCH PARAMETERS'}
-                {theme === 'startup' && 'Coba gunakan kata kunci atau kategori yang berbeda'}
+                {theme === 'startup' && 'Coba gunakan kata kunci atau teknologi yang berbeda'}
                 {theme === 'dark-corporate' && 'ADJUST SEARCH CRITERIA'}
               </p>
               <button
                 onClick={() => {
-                  setSelectedCategory('all');
+                  setSelectedTechnology('all');
                   setSearchTerm('');
                 }}
                 className="btn-primary"
@@ -481,256 +478,207 @@ export default function Portfolio({ portfolios, categories }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {filteredPortfolios.map((portfolio, index) => (
-                <div
-                  key={portfolio.id}
-                  className={`group transition-all duration-500 animate-fade-in-up ${
-                    theme === 'cyber'
-                      ? 'card-cyber'
-                      : theme === 'startup'
-                        ? 'card-startup'
-                        : 'card-corporate'
-                  }`}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {/* Image Container */}
-                  <div className="relative h-56 md:h-64 overflow-hidden">
-                    <img
-                      src={
-                        portfolio.image ||
-                        (theme === 'cyber'
-                          ? 'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                          : theme === 'dark-corporate'
-                            ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                            : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')
-                      }
-                      alt={portfolio.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    
-                    {/* Overlay */}
-                    <div
-                      className={`absolute inset-0 transition-opacity duration-300 ${
-                        theme === 'cyber'
-                          ? 'bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100'
-                          : theme === 'startup'
-                            ? 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
-                            : 'bg-gradient-to-t from-[var(--color-bg-primary)]/90 via-[var(--color-bg-primary)]/50 to-transparent opacity-0 group-hover:opacity-100'
-                      }`}
-                    ></div>
+              {filteredPortfolios.map((portfolio, index) => {
+                // Get first technology for display
+                const primaryTech = portfolio.technologies && portfolio.technologies.length > 0 
+                  ? portfolio.technologies[0] 
+                  : null;
 
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4">
-                      <span
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full ${
+                return (
+                  <div
+                    key={portfolio.id}
+                    className={`group transition-all duration-500 animate-fade-in-up ${
+                      theme === 'cyber'
+                        ? 'card-cyber'
+                        : theme === 'startup'
+                          ? 'card-startup'
+                          : 'card-corporate'
+                    }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {/* Image Container */}
+                    <div className="relative h-56 md:h-64 overflow-hidden">
+                      <img
+                        src={portfolio.image || 'https://via.placeholder.com/800x600?text=Project+Image'}
+                        alt={portfolio.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      
+                      {/* Overlay */}
+                      <div
+                        className={`absolute inset-0 transition-opacity duration-300 ${
                           theme === 'cyber'
-                            ? 'border font-mono'
-                            : theme === 'dark-corporate'
-                              ? 'uppercase tracking-wider'
-                              : ''
+                            ? 'bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100'
+                            : theme === 'startup'
+                              ? 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                              : 'bg-gradient-to-t from-[var(--color-bg-primary)]/90 via-[var(--color-bg-primary)]/50 to-transparent opacity-0 group-hover:opacity-100'
                         }`}
-                        style={{
-                          backgroundColor: theme === 'startup' 
-                            ? 'var(--color-primary)' 
-                            : 'var(--color-bg-card)',
-                          color: theme === 'startup' 
-                            ? 'white' 
-                            : 'var(--color-primary)',
-                          borderColor: 'var(--color-primary)',
-                          borderWidth: theme === 'cyber' ? '1px' : '0',
-                          backdropFilter: 'blur(4px)',
-                        }}
-                      >
-                        {getCategoryName(portfolio.category || 'Web Development')}
-                      </span>
+                      ></div>
+
+                      {/* Service Badge */}
+                      {portfolio.service && (
+                        <div className="absolute top-4 left-4">
+                          <span
+                            className={`px-3 py-1.5 text-xs font-medium rounded-full ${
+                              theme === 'cyber'
+                                ? 'border font-mono'
+                                : theme === 'dark-corporate'
+                                  ? 'uppercase tracking-wider'
+                                  : ''
+                            }`}
+                            style={{
+                              backgroundColor: theme === 'startup' 
+                                ? 'var(--color-primary)' 
+                                : 'var(--color-bg-card)',
+                              color: theme === 'startup' 
+                                ? 'white' 
+                                : 'var(--color-primary)',
+                              borderColor: 'var(--color-primary)',
+                              backdropFilter: 'blur(4px)',
+                            }}
+                          >
+                            {portfolio.service.title}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Tech Badge - Cyber Theme */}
+                      {theme === 'cyber' && primaryTech && (
+                        <div className="absolute top-4 right-4">
+                          <span
+                            className="px-3 py-1.5 text-xs font-mono rounded-full border"
+                            style={{
+                              borderColor: 'var(--color-primary)',
+                              color: 'var(--color-primary)',
+                              backgroundColor: 'rgba(0,0,0,0.7)',
+                              backdropFilter: 'blur(4px)',
+                            }}
+                          >
+                            {primaryTech.toUpperCase().replace(/\s/g, '_')}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* View Project Indicator - Corporate Theme */}
+                      {theme === 'dark-corporate' && (
+                        <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                          <span
+                            className="text-xs uppercase tracking-wider px-3 py-1.5"
+                            style={{
+                              borderLeft: `3px solid var(--color-primary)`,
+                              color: 'var(--color-text-primary)',
+                              backgroundColor: 'rgba(17,24,39,0.9)',
+                              backdropFilter: 'blur(4px)',
+                            }}
+                          >
+                            VIEW CASE STUDY
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Tech Badge - Cyber Theme */}
-                    {theme === 'cyber' && portfolio.tech && (
-                      <div className="absolute top-4 right-4">
-                        <span
-                          className="px-3 py-1.5 text-xs font-mono rounded-full border"
-                          style={{
-                            borderColor: 'var(--color-primary)',
-                            color: 'var(--color-primary)',
-                            backgroundColor: 'rgba(0,255,65,0.1)',
-                            backdropFilter: 'blur(4px)',
-                          }}
-                        >
-                          {portfolio.tech}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* View Project Indicator - Corporate Theme */}
-                    {theme === 'dark-corporate' && (
-                      <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                        <span
-                          className="text-xs uppercase tracking-wider px-3 py-1.5"
-                          style={{
-                            borderLeft: `3px solid var(--color-primary)`,
-                            color: 'var(--color-text-primary)',
-                            backgroundColor: 'rgba(17,24,39,0.9)',
-                            backdropFilter: 'blur(4px)',
-                          }}
-                        >
-                          VIEW CASE STUDY
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5 md:p-6">
-                    {/* Title */}
-                    <h3
-                      className={`font-bold mb-2 ${
-                        theme === 'cyber'
-                          ? 'font-mono text-lg'
-                          : theme === 'dark-corporate'
-                            ? 'uppercase tracking-wider text-base'
-                            : 'text-xl'
-                      }`}
-                      style={{ color: 'var(--color-text-primary)' }}
-                    >
-                      {portfolio.title}
-                    </h3>
-
-                    {/* Date */}
-                    <div className="flex items-center mb-3">
-                      <CalendarIcon
-                        className="h-4 w-4 mr-2"
-                        style={{ color: 'var(--color-text-muted)' }}
-                      />
-                      <span
-                        className="text-xs"
-                        style={{ color: 'var(--color-text-muted)' }}
+                    {/* Content */}
+                    <div className="p-5 md:p-6">
+                      {/* Title */}
+                      <h3
+                        className={`font-bold mb-2 ${
+                          theme === 'cyber'
+                            ? 'font-mono text-lg'
+                            : theme === 'dark-corporate'
+                              ? 'uppercase tracking-wider text-base'
+                              : 'text-xl'
+                        }`}
+                        style={{ color: 'var(--color-text-primary)' }}
                       >
-                        {portfolio.published_at
-                          ? new Date(portfolio.published_at).toLocaleDateString(
+                        {portfolio.title}
+                      </h3>
+
+                      {/* Date */}
+                      {portfolio.completion_date && (
+                        <div className="flex items-center mb-3">
+                          <CalendarIcon
+                            className="h-4 w-4 mr-2"
+                            style={{ color: 'var(--color-text-muted)' }}
+                          />
+                          <span
+                            className="text-xs"
+                            style={{ color: 'var(--color-text-muted)' }}
+                          >
+                            {new Date(portfolio.completion_date).toLocaleDateString(
                               theme === 'cyber' ? 'en-US' : 'id-ID',
                               {
                                 year: 'numeric',
                                 month: theme === 'cyber' ? 'short' : 'long',
-                                day: 'numeric',
                               }
-                            )
-                          : theme === 'cyber'
-                            ? 'PENDING_DEPLOYMENT'
-                            : 'Belum dipublikasikan'}
-                      </span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      <p
+                        className="text-sm mb-4 line-clamp-2 leading-relaxed"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        {portfolio.description}
+                      </p>
+
+                      {/* Technologies - Startup Theme */}
+                      {theme === 'startup' && portfolio.technologies && portfolio.technologies.length > 0 && (
+                        <div className="mb-4 flex flex-wrap gap-1">
+                          {portfolio.technologies.slice(0, 3).map((tech, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs px-2 py-1 rounded"
+                              style={{
+                                backgroundColor: 'var(--color-bg-secondary)',
+                                color: 'var(--color-text-muted)',
+                              }}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                          {portfolio.technologies.length > 3 && (
+                            <span
+                              className="text-xs px-2 py-1 rounded"
+                              style={{
+                                backgroundColor: 'var(--color-bg-secondary)',
+                                color: 'var(--color-primary)',
+                              }}
+                            >
+                              +{portfolio.technologies.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Link */}
+                      <Link
+                        href={`/portofolio/${portfolio.slug}`}
+                        className={`inline-flex items-center text-sm font-medium transition-all duration-300 group-hover:translate-x-1 ${
+                          theme === 'cyber'
+                            ? 'font-mono'
+                            : theme === 'dark-corporate'
+                              ? 'uppercase tracking-wider text-xs'
+                              : ''
+                        }`}
+                        style={{ color: 'var(--color-primary)' }}
+                      >
+                        {theme === 'cyber' && '$ ACCESS_PROJECT'}
+                        {theme === 'startup' && 'Lihat Detail Proyek'}
+                        {theme === 'dark-corporate' && 'VIEW CASE STUDY'}
+                        <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </Link>
                     </div>
-
-                    {/* Description */}
-                    <p
-                      className="text-sm mb-4 line-clamp-2 leading-relaxed"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      {portfolio.description}
-                    </p>
-
-                    {/* Tech Stack - Startup Theme */}
-                    {theme === 'startup' && portfolio.tech && (
-                      <div className="mb-4">
-                        <span
-                          className="text-xs px-2 py-1 rounded"
-                          style={{
-                            backgroundColor: 'var(--color-bg-secondary)',
-                            color: 'var(--color-text-muted)',
-                          }}
-                        >
-                          {portfolio.tech}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Link */}
-                    <Link
-                      href={`/portofolio/${portfolio.slug}`}
-                      className={`inline-flex items-center text-sm font-medium transition-all duration-300 group-hover:translate-x-1 ${
-                        theme === 'cyber'
-                          ? 'font-mono'
-                          : theme === 'dark-corporate'
-                            ? 'uppercase tracking-wider text-xs'
-                            : ''
-                      }`}
-                      style={{ color: 'var(--color-primary)' }}
-                    >
-                      {theme === 'cyber' && '$ ACCESS_PROJECT'}
-                      {theme === 'startup' && 'Lihat Detail Proyek'}
-                      {theme === 'dark-corporate' && 'VIEW CASE STUDY'}
-                      <ArrowRightIcon className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Link>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {filteredPortfolios.length > 0 && (
-            <div className="mt-12 flex justify-center">
-              <nav className="flex items-center space-x-2">
-                <button
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-theme"
-                  style={{
-                    backgroundColor: 'var(--color-bg-card)',
-                    borderColor: 'var(--color-border)',
-                    borderWidth: '1px',
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  {theme === 'cyber' ? 'PREV' : 'Previous'}
-                </button>
-                <button
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-theme"
-                  style={{
-                    backgroundColor: 'var(--color-primary)',
-                    color: 'var(--color-bg-primary)',
-                  }}
-                >
-                  1
-                </button>
-                <button
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-theme"
-                  style={{
-                    backgroundColor: 'var(--color-bg-card)',
-                    borderColor: 'var(--color-border)',
-                    borderWidth: '1px',
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  2
-                </button>
-                <button
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-theme"
-                  style={{
-                    backgroundColor: 'var(--color-bg-card)',
-                    borderColor: 'var(--color-border)',
-                    borderWidth: '1px',
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  3
-                </button>
-                <button
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-theme"
-                  style={{
-                    backgroundColor: 'var(--color-bg-card)',
-                    borderColor: 'var(--color-border)',
-                    borderWidth: '1px',
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  {theme === 'cyber' ? 'NEXT' : 'Next'}
-                </button>
-              </nav>
+                );
+              })}
             </div>
           )}
         </div>
       </section>
 
-      {/* CTA Section - Theme Specific */}
+      {/* CTA Section */}
       <section
         className="py-20 relative overflow-hidden transition-theme"
         style={{

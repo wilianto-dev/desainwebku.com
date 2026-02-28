@@ -12,25 +12,33 @@ return new class extends Migration
     public function up(): void
     {
          Schema::create('portfolios', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->longText('description');
-            $table->string('category');
-            $table->string('image');
+    $table->id();
 
-            $table->json('technologies')->nullable();
-              $table->json('results')->nullable();
-            
-            $table->enum('status', ['draft', 'published'])->default('draft');
-            $table->date('completion_date')->nullable();
-            $table->timestamp('published_at')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-            
-            $table->index(['status', 'category']);
-        });
+    $table->foreignId('service_id')
+        ->nullable()
+        ->constrained()
+        ->nullOnDelete();
+
+    $table->string('title');
+    $table->string('slug')->unique();
+    $table->longText('description');
+
+    $table->string('image');
+
+    $table->json('technologies')->nullable();
+    $table->json('results')->nullable();
+
+    $table->enum('status', ['draft', 'published'])
+        ->default('draft');
+
+    $table->date('completion_date')->nullable();
+    $table->timestamp('published_at')->nullable();
+
+    $table->timestamps();
+    $table->softDeletes();
+
+    $table->index(['status', 'service_id']);
+});
     }
 
     /**

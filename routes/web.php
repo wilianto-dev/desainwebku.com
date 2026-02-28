@@ -20,6 +20,11 @@ Route::get('/layanan', [\App\Http\Controllers\PublicController::class, 'services
 Route::get('/layanan/{service:slug}', [\App\Http\Controllers\PublicController::class, 'serviceDetail'])->name('service.detail');
 Route::get('/portofolio', [\App\Http\Controllers\PublicController::class, 'portfolio'])->name('portfolio');
 Route::get('/portofolio/{portfolio:slug}', [\App\Http\Controllers\PublicController::class, 'portfolioDetail'])->name('portfolio.detail');
+
+// Routes untuk Package (PAKET)
+Route::get('/paket', [\App\Http\Controllers\PublicController::class, 'packages'])->name('packages');
+Route::get('/paket/{package:slug}', [\App\Http\Controllers\PublicController::class, 'packageDetail'])->name('package.detail');
+
 Route::get('/kontak', [\App\Http\Controllers\PublicController::class, 'contact'])->name('contact');
 Route::post('/kontak', [\App\Http\Controllers\PublicController::class, 'contactSubmit'])->name('contact.submit');
 
@@ -53,7 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 */
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'admin'])->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'admin'])->name('admin.dashboard');
     
     // Resource Controllers
     Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class);
@@ -82,20 +87,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 });
-
-
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
-
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
