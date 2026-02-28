@@ -22,7 +22,10 @@ class Portfolio extends Model
     ];
 
     protected $casts = [
-        'published_at' => 'datetime',
+          'technologies' => 'array',
+    'results' => 'array',
+    'published_at' => 'datetime',
+    'completion_date' => 'date',
     ];
 
     public function user()

@@ -974,7 +974,7 @@ export default function Services({ services, packages }) {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto ">
             {packages?.map((pkg, index) => {
               const features = parseFeatures(pkg.features);
               const isPopular = pkg.is_popular;
@@ -991,7 +991,7 @@ export default function Services({ services, packages }) {
                   } ${
                     isPopular
                       ? theme === 'startup'
-                        ? 'border-2 border-[var(--color-primary)] shadow-lg scale-105 lg:scale-110'
+                        ? 'border-2 border-[var(--color-primary)] shadow-lg scale-105 lg:scale-110 my-10'
                         : theme === 'dark-corporate'
                           ? 'border-2 border-[var(--color-primary)]'
                           : 'border-2 border-[var(--color-primary)] shadow-[var(--shadow-glow)]'

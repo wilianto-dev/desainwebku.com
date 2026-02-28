@@ -19,7 +19,12 @@ return new class extends Migration
             $table->longText('description');
             $table->string('category');
             $table->string('image');
+
+            $table->json('technologies')->nullable();
+              $table->json('results')->nullable();
+            
             $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->date('completion_date')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
