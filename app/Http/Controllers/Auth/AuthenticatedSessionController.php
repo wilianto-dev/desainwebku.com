@@ -33,7 +33,19 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = Auth::user();
+        
+        // Redirect berdasarkan role
+        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
+            return redirect()->intended('/admin');
+        }
+        
+        if ($user->hasRole('customer')) {
+            return redirect()->intended('/customer');
+        }
+
+        // Default redirect ke dashboard Breeze
+        return redirect()->intended('/dashboard');
     }
 
     /**
