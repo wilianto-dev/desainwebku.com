@@ -13,14 +13,27 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class SettingResource extends Resource
 {
     protected static ?string $model = Setting::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-code-bracket';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+
+    protected static ?string $navigationLabel = 'Settings';
+
+    protected static ?string $modelLabel = 'Setting';
+
+    protected static ?string $pluralModelLabel = 'Settings';
 
     protected static ?string $recordTitleAttribute = 'key';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -46,5 +59,10 @@ class SettingResource extends Resource
             'create' => CreateSetting::route('/create'),
             'edit' => EditSetting::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery();
     }
 }

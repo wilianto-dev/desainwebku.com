@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Settings\Pages;
 
 use App\Filament\Admin\Resources\Settings\SettingResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListSettings extends ListRecords
@@ -13,7 +13,10 @@ class ListSettings extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('New Setting')
+                ->icon('heroicon-m-plus')
+                ->color('success'),
         ];
     }
 }

@@ -19,6 +19,17 @@ class Setting extends Model
         'value' => 'array',
     ];
 
+    // Accessor untuk memudahkan form
+    public function getValueAttribute($value)
+    {
+        // Untuk JSON type, kembalikan sebagai array
+        if ($this->type === 'json') {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : $value;
+        }
+        return $value;
+    }
+
     public static function getValue($key, $default = null)
     {
         $setting = self::where('key', $key)->first();

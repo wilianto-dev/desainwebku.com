@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Testimonials\Pages;
 
 use App\Filament\Admin\Resources\Testimonials\TestimonialResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListTestimonials extends ListRecords
@@ -13,7 +13,10 @@ class ListTestimonials extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('New Testimonial')
+                ->icon('heroicon-m-plus')
+                ->color('success'),
         ];
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Portfolio extends Model
 {
@@ -24,10 +24,10 @@ class Portfolio extends Model
     ];
 
     protected $casts = [
-        'technologies' => 'array',
-        'results' => 'array',
         'completion_date' => 'date',
         'published_at' => 'datetime',
+        'technologies' => 'array',
+        'results' => 'array',
     ];
 
     public function service()
@@ -35,14 +35,13 @@ class Portfolio extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function scopePublished($query)
     {
-        return $query->where('status', 'published')
-                    ->whereNotNull('published_at');
+        return $query->where('status', 'published');
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
     }
 }

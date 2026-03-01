@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Services\Pages;
 
 use App\Filament\Admin\Resources\Services\ServiceResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListServices extends ListRecords
@@ -13,7 +13,10 @@ class ListServices extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('New Service')
+                ->icon('heroicon-m-plus')
+                ->color('success'),
         ];
     }
 }

@@ -15,22 +15,25 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Order Management';
+
+    protected static ?string $navigationLabel = 'Orders';
+
+    protected static ?string $modelLabel = 'Order';
+
+    protected static ?string $pluralModelLabel = 'Orders';
 
     protected static ?string $recordTitleAttribute = 'order_number';
-    
-    protected static ?string $navigationLabel = 'Orders';
-    
-    protected static ?string $pluralModelLabel = 'Orders';
-    
-    protected static ?string $modelLabel = 'Order';
-    
-    protected static ?string $slug = 'orders';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -58,21 +61,11 @@ class OrderResource extends Resource
         ];
     }
 
-    public static function getRecordRouteBindingEloquentQuery(): Builder
+    public static function getEloquentQuery(): Builder
     {
-        return parent::getRecordRouteBindingEloquentQuery()
+        return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
-    }
-    
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::where('status', 'pending')->count() ?: null;
-    }
-    
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'warning';
     }
 }

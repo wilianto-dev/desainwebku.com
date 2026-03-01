@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Portfolios\Pages;
 
 use App\Filament\Admin\Resources\Portfolios\PortfolioResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListPortfolios extends ListRecords
@@ -13,7 +13,10 @@ class ListPortfolios extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('New Portfolio')
+                ->icon('heroicon-m-plus')
+                ->color('success'),
         ];
     }
 }

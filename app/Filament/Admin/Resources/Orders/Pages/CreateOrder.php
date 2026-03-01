@@ -8,4 +8,23 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
+    
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Order created successfully';
+    }
+    
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (!isset($data['order_number'])) {
+            $data['order_number'] = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        }
+        
+        return $data;
+    }
 }

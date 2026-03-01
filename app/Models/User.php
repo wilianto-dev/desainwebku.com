@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -87,5 +88,10 @@ class User extends Authenticatable
         
         // Default avatar dari UI Avatars
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=0D8F81&color=fff';
+    }
+
+        public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'admin']);
     }
 }

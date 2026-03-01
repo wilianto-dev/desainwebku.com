@@ -31,6 +31,11 @@ class Service extends Model
         return $this->hasMany(Package::class);
     }
 
+        public function orders()
+    {
+        return $this->hasManyThrough(Order::class, Package::class);
+    }
+
     public function portfolios()
     {
         return $this->hasMany(Portfolio::class);
